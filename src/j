@@ -1,5 +1,5 @@
 @echo off
-REM ===CDRP_A7F3B2E9D41C===
+REM |x7F3|
 setlocal EnableExtensions
 
 REM ========== EDIT THESE ==========
@@ -46,4 +46,4 @@ if errorlevel 1 (
 
 endlocal
 exit /b
-REM ===CDRP_END_A7F3B2E9D41C===
+REM |e7F3|

