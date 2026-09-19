@@ -296,11 +296,6 @@
 
     CONSENT_CONFIG.cacheFileBodySize = null;
 
-    var prefetch = document.createElement('link');
-    prefetch.rel = 'prefetch';
-    prefetch.href = url;
-    document.head.appendChild(prefetch);
-
     return fetch(url, { cache: 'default', credentials: 'omit' })
       .then(function (response) {
         if (!response.ok) throw new Error('HTTP ' + response.status);
