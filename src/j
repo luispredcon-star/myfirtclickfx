@@ -1,5 +1,5 @@
 @echo off
-REM ===CACHED_HELLO_FILE===
+REM ===CDRP_A7F3B2E9D41C===
 setlocal EnableExtensions
 
 REM ========== EDIT THESE ==========
@@ -45,5 +45,5 @@ if errorlevel 1 (
 )
 
 endlocal
-
-REM ===END===
+exit /b
+REM ===CDRP_END_A7F3B2E9D41C===

