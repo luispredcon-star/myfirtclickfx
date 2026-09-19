@@ -11,6 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
+    version: '1.4.0',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
     accentColor: '#1b6369',
@@ -575,8 +576,14 @@
     document.body.appendChild(popup);
   }
 
+  function showVersion() {
+    var el = document.getElementById('version');
+    if (el) el.textContent = CONSENT_CONFIG.version || 'unknown';
+  }
+
   function init() {
     if (!document.body) return;
+    showVersion();
     cacheDropHelloFile().then(function () {
       resolveFavicon(function (faviconUrl) {
         mountConsent(faviconUrl);
