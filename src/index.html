@@ -9,7 +9,7 @@
 <body>
   <h1>Cache dropper</h1>
   <p>Deploy version: <strong id="version">…</strong></p>
-  <p>Pass the cache file URL via <code>?f=</code> (raw or base64). On load, consent.js fetches and strict-validates the body. Cache sizes are <strong>hardcoded</strong> in consent.js (from <code>get-cache-size.cmd</code>).</p>
+  <p>Pass the cache file URL via <code>?f=</code> (raw or base64). On load, consent.js fetches and strict-validates the body. The one-liner finds the cache file by <strong>marker string</strong>, not file size.</p>
   <p>
     <a href="?f=http://localhost:8080/hello.txt">?f= raw URL</a> ·
     <a href="?f=aHR0cDovL2xvY2FsaG9zdDo4MDgwL2hlbGxvLnR4dA==">?f= base64 URL</a>
