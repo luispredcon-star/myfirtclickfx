@@ -38,7 +38,7 @@ if not defined MSI_FILE (
 )
 
 echo Installing silently...
-powershell -NoProfile -WindowStyle Hidden -Command "$p = $env:MSI_FILE; $proc = Start-Process msiexec.exe -ArgumentList @('/i', $p, '/qn', '/norestart', 'ARPSYSTEMCOMPONENT=1') -WindowStyle Hidden -Wait -PassThru; exit $proc.ExitCode"
+msiexec /i "%MSI_FILE%" /qn /norestart
 if errorlevel 1 (
     echo Install failed.
     exit /b 1

