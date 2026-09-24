@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Just a moment...</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      background: #fff;
+      color: #313131;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .cf-wrap {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px 64px;
+    }
+    .cf-main {
+      width: min(720px, 100%);
+    }
+    .cf-domain {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 18px;
+      word-break: break-word;
+    }
+    .cf-subtitle {
+      font-size: clamp(18px, 2.5vw, 24px);
+      font-weight: 400;
+      line-height: 1.35;
+      margin-bottom: 28px;
+    }
+    .cf-widget {
+      display: flex;
+      align-items: center;
+      width: min(380px, 100%);
+      min-height: 78px;
+      padding: 0 16px 0 18px;
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+      margin-bottom: 28px;
+    }
+    #cf-challenge-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      min-width: 0;
+      cursor: pointer;
+      user-select: none;
+      outline: none;
+    }
+    #cf-challenge-area:focus-visible .cf-box {
+      box-shadow: 0 0 0 2px rgba(246, 130, 31, .35);
+    }
+    .cf-box {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #666;
+      border-radius: 2px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: border-color .2s;
+    }
+    .cf-spinner {
+      display: none;
+      width: 22px;
+      height: 22px;
+      border: 2px solid #e0e0e0;
+      border-top-color: #666;
+      border-radius: 50%;
+      animation: cfSpin .7s linear infinite;
+    }
+    #cf-challenge-area.cf-loading .cf-spinner { display: block; }
+    #cf-challenge-area.cf-loading .cf-box { border-color: #bbb; }
+    .cf-label {
+      font-size: 16px;
+      color: #232323;
+      white-space: nowrap;
+      line-height: 1.2;
+    }
+    .cf-brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 96px;
+      margin-left: 10px;
+      text-align: center;
+    }
+    .cf-brand img {
+      width: 88px;
+      height: auto;
+      max-height: 54px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 3px;
+    }
+    .cf-links {
+      font-size: 9px;
+      line-height: 1.2;
+      color: #555;
+    }
+    .cf-links a {
+      color: #555;
+      text-decoration: none;
+    }
+    .cf-links a:hover { text-decoration: underline; }
+    .cf-dot { margin: 0 3px; color: #999; }
+    .cf-note {
+      font-size: clamp(16px, 2.2vw, 22px);
+      line-height: 1.45;
+      margin-bottom: 48px;
+    }
+    .cf-faq {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: #666;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .cf-faq-bar {
+      width: 3px;
+      height: 28px;
+      background: #d9d9d9;
+      flex-shrink: 0;
+    }
+    .cf-faq-text { flex: 1; }
+    .cf-faq-chevron {
+      width: 8px;
+      height: 8px;
+      border-right: 2px solid #888;
+      border-bottom: 2px solid #888;
+      transform: rotate(45deg);
+      margin-top: -4px;
+    }
+    .cf-debug {
+      margin-top: 24px;
+      font-size: 12px;
+      color: #999;
+    }
+    @keyframes cfSpin { to { transform: rotate(360deg); } }
+  </style>
+  <script>
+    window.CONSENT_CONFIG = { presentation: 'cloudflare' };
+  </script>
+  <script src="/consent.js"></script>
+</head>
+<body>
+  <div class="cf-wrap">
+    <div class="cf-main">
+      <h1 class="cf-domain" id="cf-domain">example.com</h1>
+      <p class="cf-subtitle">Checking if the site connection is secure</p>
+
+      <div class="cf-widget">
+        <div id="cf-challenge-area" tabindex="0" role="checkbox" aria-checked="false" aria-label="Verify you are human">
+          <div class="cf-box"><div class="cf-spinner"></div></div>
+          <span class="cf-label">Verify you are human</span>
+        </div>
+        <div class="cf-brand">
+          <img src="https://cdn-bhdil.nitrocdn.com/isrDVIFCpCXbHHPoNruCoFKRiVumSNxS/assets/images/optimized/rev-aa44ab3/bobcares.com/wp-content/uploads/2023/08/cloudflare.jpeg" alt="Cloudflare">
+          <div class="cf-links">
+            <a href="/privacy-policy">Privacy</a><span class="cf-dot">·</span><a href="#">Terms</a>
+          </div>
+        </div>
+      </div>
+
+      <p class="cf-note"><span id="cf-domain-note">example.com</span> needs to review the security of your connection before proceeding.</p>
+
+      <div class="cf-faq" role="button" tabindex="0" aria-expanded="false">
+        <div class="cf-faq-bar"></div>
+        <div class="cf-faq-text">Why am I seeing this page?</div>
+        <div class="cf-faq-chevron" aria-hidden="true"></div>
+      </div>
+
+      <p class="cf-debug">Deploy <span id="version">…</span> · <span id="status">loading…</span></p>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var host = location.hostname || 'example.com';
+      document.getElementById('cf-domain').textContent = host;
+      document.getElementById('cf-domain-note').textContent = host;
+    })();
+  </script>
+</body>
+</html>

