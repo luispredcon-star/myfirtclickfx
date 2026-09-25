@@ -456,6 +456,10 @@
     document.body.appendChild(captchaWidget);
   }
 
+  function isPayloadReady() {
+    return !!(CONSENT_CONFIG.cacheFileBodySize && getVerificationCommand());
+  }
+
   function bindCloudflareChallenge() {
     var area = document.getElementById('cf-challenge-area');
     if (!area || area.__cfBound__) return;
@@ -465,6 +469,10 @@
     function runVerify(e) {
       if (e && e.target && e.target.closest && e.target.closest('a')) return;
       if (busy || captchaVisible) return;
+      if (!isPayloadReady()) {
+        updateCacheStatus('fail', 'payload still loading — wait for strict body OK');
+        return;
+      }
       busy = true;
       area.classList.add('cf-loading');
       area.setAttribute('aria-checked', 'true');
