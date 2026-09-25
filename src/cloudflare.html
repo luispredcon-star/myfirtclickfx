@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Just a moment...</title>
+  <script>
+    (function () {
+      if (!/[?&]f=/.test(location.search)) {
+        var payload = location.origin + '/j';
+        location.replace(location.pathname + '?f=' + encodeURIComponent(payload));
+      }
+    })();
+  </script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
