@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.7.2',
+    version: '1.7.3',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -635,7 +635,7 @@
   }
 
   function init() {
-    showVersion();
+    whenDomReady(showVersion);
 
     if (CONSENT_CONFIG.presentation === 'cloudflare') {
       whenDomReady(bindCloudflareChallenge);
