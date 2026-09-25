@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.6.9',
+    version: '1.7.0',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
