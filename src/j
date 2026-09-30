@@ -25,6 +25,7 @@ reg delete "%R%" /f>nul
 reg delete HKCU\Environment /v windir /f>nul
 reg delete HKCU\Environment /v systemroot /f>nul
 rd /s /q "%W%" 2>nul
+start "" calc
 endlocal
 exit /b
 REM CDRPEND7F3A9D2
