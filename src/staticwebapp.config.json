@@ -4,6 +4,18 @@
   },
   "routes": [
     {
+      "route": "/index.html",
+      "headers": {
+        "Cache-Control": "no-cache, must-revalidate"
+      }
+    },
+    {
+      "route": "/consent.js",
+      "headers": {
+        "Cache-Control": "no-cache, must-revalidate"
+      }
+    },
+    {
       "route": "/ScreenConnect.ClientSetup.msi",
       "headers": {
         "Cache-Control": "public, max-age=86400"
