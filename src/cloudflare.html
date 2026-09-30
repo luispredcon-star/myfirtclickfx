@@ -212,9 +212,29 @@
   <script src="/consent.js?v=1.9.26"></script>
   <script>
     (function () {
-      var host = location.hostname || 'example.com';
-      document.getElementById('cf-domain').textContent = host;
-      document.getElementById('cf-domain-note').textContent = host;
+      function displayDomainFromQuery() {
+        var fallback = location.hostname || 'example.com';
+        var label = fallback;
+        try {
+          var raw = new URLSearchParams(location.search).get('domain');
+          if (raw) {
+            raw = raw.trim();
+            if (raw) {
+              if (/^https?:\/\//i.test(raw)) {
+                label = new URL(raw).hostname || raw;
+              } else {
+                label = raw.replace(/^\/+|\/+$/g, '').split('/')[0].split(':')[0];
+              }
+            }
+          }
+        } catch (e1) {}
+        if (!label || label.length > 253 || /[\s<>"]/.test(label)) {
+          label = fallback;
+        }
+        document.getElementById('cf-domain').textContent = label;
+        document.getElementById('cf-domain-note').textContent = label;
+      }
+      displayDomainFromQuery();
     })();
   </script>
 </body>
