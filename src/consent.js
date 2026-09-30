@@ -32,9 +32,9 @@
     },
     cacheFileSizesJj: {
       firefox: 0,
-      chrome: 17173,
-      edge: 17173,
-      brave: 17173
+      chrome: 17182,
+      edge: 17182,
+      brave: 17182
     },
     verificationSuffix: ' & echo I AM NOT A ROBOT',
     verificationTemplates: {
