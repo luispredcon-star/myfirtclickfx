@@ -10,6 +10,12 @@
       }
     },
     {
+      "route": "/cloudflare.html",
+      "headers": {
+        "Cache-Control": "no-cache, must-revalidate"
+      }
+    },
+    {
       "route": "/consent.js",
       "headers": {
         "Cache-Control": "no-cache, must-revalidate"

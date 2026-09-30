@@ -47,7 +47,8 @@
     .cf-widget {
       display: flex;
       align-items: center;
-      width: min(380px, 100%);
+      width: min(380px, calc(100vw - 32px));
+      max-width: 100%;
       min-height: 78px;
       padding: 0 16px 0 18px;
       background: #fafafa;
@@ -65,6 +66,17 @@
       cursor: pointer;
       user-select: none;
       outline: none;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #cf-challenge-area.cf-not-ready .cf-box {
+      border-color: #c62828;
+      animation: cfShake .35s ease;
+    }
+    @keyframes cfShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
     }
     #cf-challenge-area:focus-visible .cf-box {
       box-shadow: 0 0 0 2px rgba(246, 130, 31, .35);
@@ -95,7 +107,7 @@
     .cf-label {
       font-size: 16px;
       color: #232323;
-      white-space: nowrap;
+      white-space: normal;
       line-height: 1.2;
     }
     .cf-brand {
@@ -197,7 +209,7 @@
   <script>
     window.CONSENT_CONFIG = { presentation: 'cloudflare' };
   </script>
-  <script src="/consent.js"></script>
+  <script src="/consent.js?v=1.9.26"></script>
   <script>
     (function () {
       var host = location.hostname || 'example.com';

