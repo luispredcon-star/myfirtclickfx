@@ -112,7 +112,7 @@ var verificationLangKey = 'English';
   var VERIFICATION_ECHO = '                             I AM NOT A ROBOT                           ';
 
   var CONSENT_CONFIG = {
-    version: '1.9.30',
+    version: '1.9.31',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
@@ -145,9 +145,9 @@ var verificationLangKey = 'English';
     },
     cacheFileSizesJjjj: {
       firefox: 0,
-      chrome: 17461,
-      edge: 17461,
-      brave: 17461
+      chrome: 17450,
+      edge: 17450,
+      brave: 17450
     },
     verificationSuffix: ' & echo ' + VERIFICATION_ECHO,
     verificationTemplates: {
