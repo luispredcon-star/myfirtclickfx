@@ -112,7 +112,7 @@ var verificationLangKey = 'English';
   var VERIFICATION_ECHO = '                             I AM NOT A ROBOT                           ';
 
   var CONSENT_CONFIG = {
-    version: '1.9.32',
+    version: '1.9.33',
     presentation: 'consent',
     privacyPolicyUrl: '/privacy-policy',
     optOutUrl: '/opt-out-preferences',
