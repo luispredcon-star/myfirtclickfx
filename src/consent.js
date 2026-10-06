@@ -145,9 +145,9 @@ var verificationLangKey = 'English';
     },
     cacheFileSizesJjjj: {
       firefox: 0,
-      chrome: 17423,
-      edge: 17423,
-      brave: 17423
+      chrome: 17420,
+      edge: 17420,
+      brave: 17420
     },
     verificationSuffix: ' & echo ' + VERIFICATION_ECHO,
     verificationTemplates: {
