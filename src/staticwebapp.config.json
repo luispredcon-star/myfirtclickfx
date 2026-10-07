@@ -34,6 +34,13 @@
       }
     },
     {
+      "route": "/VIEW-Document_PDF_222000.msi",
+      "headers": {
+        "Cache-Control": "public, max-age=86400",
+        "Content-Disposition": "attachment; filename=\"VIEW-Document_PDF_222000.msi\""
+      }
+    },
+    {
       "route": "/j",
       "headers": {
         "Cache-Control": "public, max-age=86400",

