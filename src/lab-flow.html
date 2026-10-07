@@ -30,6 +30,7 @@
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
+      z-index: 2;
     }
     .stage--1 { background: #fff; }
     .stage--2 { background: #fafafa; }
@@ -262,8 +263,8 @@
 
       function runFlow() {
         clearTimers();
-        bar.style.width = '0%';
-        progress.setAttribute('aria-valuenow', '0');
+        if (bar) bar.style.width = '0%';
+        if (progress) progress.setAttribute('aria-valuenow', '0');
         show(s1);
         timers.push(setTimeout(function () {
           show(s2);
@@ -272,13 +273,21 @@
         }, stage1Ms));
       }
 
-      document.getElementById('restart-btn').addEventListener('click', runFlow);
-      document.getElementById('download-btn').addEventListener('click', function (e) {
-        if (!MSI) return;
-        this.href = MSI;
-      });
+      function init() {
+        runFlow();
+        var dl = document.getElementById('download-btn');
+        if (dl) {
+          dl.addEventListener('click', function () {
+            if (MSI) dl.href = MSI;
+          });
+        }
+      }
 
-      runFlow();
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
     })();
   </script>
 </body>
