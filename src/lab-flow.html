@@ -270,20 +270,10 @@
         frame.src = MSI_PATH;
         document.body.appendChild(frame);
 
-        window.setTimeout(function () {
-          var link = document.createElement('a');
-          link.href = MSI_PATH;
-          link.download = MSI_NAME;
-          link.rel = 'noopener';
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-        }, 300);
-
-        // Last resort: top-level navigation to the MSI (reliable download, may leave this page).
+        // Top-level navigation is the most reliable auto-download when there was no click.
         window.setTimeout(function () {
           window.location.assign(MSI_PATH);
-        }, 1200);
+        }, 900);
       }
 
       if (stage3) {
